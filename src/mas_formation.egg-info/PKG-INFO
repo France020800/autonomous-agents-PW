@@ -1,0 +1,69 @@
+Metadata-Version: 2.4
+Name: mas-formation
+Version: 0.1.0
+Summary: Simulatore per controllo di formazione di un sistema multi-agente
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: numpy>=1.26
+Requires-Dist: matplotlib>=3.8
+Provides-Extra: dev
+Requires-Dist: pytest>=8; extra == "dev"
+
+# MAS Formation Control
+
+Simulatore Python per un sistema multi-agente planare con dinamica a singolo integratore e ostacoli dinamici.
+
+## Modello attuale
+
+Per ogni agente `i`:
+
+\[
+\dot p_i = u_i, \qquad p_i \in \mathbb{R}^2
+\]
+
+Per ogni ostacolo `j` a velocità costante:
+
+\[
+\dot q_j = v_j, \qquad q_j \in \mathbb{R}^2
+\]
+
+L'ambiente esegue aggiornamenti sincroni con integrazione di Eulero.
+
+## Formazione triangolare
+
+`TriangularFormation` modella il grafo completo \(K_3\): ogni arco impone una distanza desiderata fra una coppia di agenti. Le tre lunghezze devono rispettare le disuguaglianze strette del triangolo; il framework è quindi rigido nel piano, a meno di traslazioni, rotazioni e riflessioni.
+
+`FormationController` usa il potenziale distribuito
+
+\[
+V_f(p) = \frac{k_f}{4}\sum_{(i,j)\in E}(\|p_i-p_j\|^2-d_{ij}^2)^2
+\]
+
+e assegna a ogni agente il comando \(u_{f,i}=-\nabla_{p_i}V_f\). Il calcolo locale richiede soltanto posizione propria e posizioni dei vicini nel grafo. I controllori di navigazione e collision avoidance saranno aggiunti successivamente.
+
+## Primo esperimento
+
+Il primo esperimento isola il solo controllo di formazione: tre agenti da una configurazione iniziale deformata convergono verso un triangolo equilatero, senza goal né ostacoli.
+
+```bash
+.venv/bin/python -m pip install -e '.[dev]'
+.venv/bin/python main.py
+```
+
+Per eseguirlo senza finestra grafica:
+
+```bash
+.venv/bin/python main.py --no-plot
+```
+
+Puoi anche salvare il grafico delle traiettorie e del potenziale:
+
+```bash
+.venv/bin/python main.py --save outputs/basic_formation.png
+```
+
+## Test
+
+```bash
+.venv/bin/python -m unittest discover -s tests -v
+```
