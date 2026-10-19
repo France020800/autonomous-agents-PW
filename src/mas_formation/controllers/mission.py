@@ -28,6 +28,7 @@ class FormationThenGoalController:
     formation_tolerance: float = 1e-3
     navigation_gain: float = 0.6
     goal_tolerance: float = 0.1
+    goal_huber_delta: float = 0.05
     seed: int | None = None
     goal_angle: float | None = None
     obstacle_controller: PositionBasedObstacleAvoidanceController | None = None
@@ -43,6 +44,8 @@ class FormationThenGoalController:
             raise ValueError("navigation_gain deve essere finito e strettamente positivo.")
         if not np.isfinite(self.goal_tolerance) or self.goal_tolerance <= 0:
             raise ValueError("goal_tolerance deve essere finita e strettamente positiva.")
+        if not np.isfinite(self.goal_huber_delta) or self.goal_huber_delta <= 0:
+            raise ValueError("goal_huber_delta deve essere finita e strettamente positiva.")
         if self.goal_angle is not None and not np.isfinite(self.goal_angle):
             raise ValueError("goal_angle deve essere finito oppure None.")
         if self.obstacle_controller is not None:
@@ -98,6 +101,7 @@ class FormationThenGoalController:
                 goal=goal,
                 gain=self.navigation_gain,
                 arrival_tolerance=self.goal_tolerance,
+                huber_delta=self.goal_huber_delta,
             )
 
         navigation_controls = self._goal_controller.controls(positions)

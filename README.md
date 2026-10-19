@@ -1,6 +1,6 @@
 # Controllo di formazione e navigazione di un sistema multi-agente
 
-**Simulazione planare con dinamica a singolo integratore, formazione triangolare rigida e campi di potenziale artificiali per ostacoli statici e mobili.**
+**Simulazione planare con dinamica a singolo integratore, formazione triangolare rigida, attrazione al goal mediante funzione di Huber e campi di potenziale artificiali per ostacoli statici e mobili.**
 
 Il progetto studia l'interazione fra tre obiettivi di controllo: mantenimento delle distanze relative, navigazione del baricentro verso un obiettivo e repulsione dagli ostacoli. Gli esperimenti permettono di analizzare sia il comportamento nominale sia deformazioni della formazione ed equilibri indesiderati.
 
@@ -30,7 +30,7 @@ Tre agenti raggiungono la formazione desiderata e successivamente navigano verso
 
 [![Potenziali di formazione, navigazione e repulsione in scala logaritmica](docs/results/dynamic_navigation_potentials.png)](docs/results/dynamic_navigation_potentials.png)
 
-*Figura 2 — La repulsione provoca una deformazione transitoria della formazione. All'allontanarsi degli ostacoli, il contributo repulsivo si annulla e il potenziale di formazione torna a valori prossimi alla precisione numerica. Il potenziale del goal non raggiunge necessariamente zero, poiché la navigazione si arresta entro una tolleranza di arrivo.*
+*Figura 2 — La repulsione provoca una deformazione transitoria della formazione. All'allontanarsi degli ostacoli, il contributo repulsivo si annulla e il potenziale di formazione torna a valori prossimi alla precisione numerica. Il potenziale del goal usa una funzione di Huber scalata: è lineare lontano dal target e quadratico solo nel suo nucleo.*
 
 **Riproduzione dell'esperimento illustrato:**
 
@@ -43,7 +43,7 @@ Tre agenti raggiungono la formazione desiderata e successivamente navigano verso
   --export-html docs/interactive/dynamic_navigation.html
 ```
 
-Per questa esecuzione, la navigazione si attiva a circa **0.98 s** e la distanza finale fra baricentro e goal è circa **0.0999 m**, inferiore alla tolleranza di **0.1 m**. Questi valori descrivono un caso sperimentale, non una garanzia di convergenza per ogni configurazione.
+Per questa esecuzione, la navigazione si attiva a circa **0.98 s** e la distanza finale fra baricentro e goal è inferiore alla tolleranza di **0.1 m**. Questi valori descrivono un caso sperimentale, non una garanzia di convergenza per ogni configurazione.
 
 ### Altri scenari
 
@@ -72,7 +72,7 @@ Il sistema converge verso un triangolo equilatero di lato 2 m. La posizione e l'
 
 ![Potenziali con quattro ostacoli fissi](docs/results/static_obstacles_potentials.png)
 
-In questa esecuzione la distanza finale dal goal è circa 0.291 m: il criterio di arrivo non è soddisfatto alla fine della simulazione. I residui dei potenziali evidenziano la competizione fra mantenimento della forma, attrazione e repulsione. Un andamento quasi costante suggerisce un equilibrio indesiderato; dimostrare che si tratti di un minimo locale richiede ulteriori verifiche del campo di controllo e della stabilità.
+In questa esecuzione la distanza finale dal goal è circa 2.25 m: il criterio di arrivo non è soddisfatto alla fine della simulazione. I residui dei potenziali evidenziano la competizione fra mantenimento della forma, attrazione e repulsione. Un andamento quasi costante suggerisce un equilibrio indesiderato; dimostrare che si tratti di un minimo locale richiede ulteriori verifiche del campo di controllo e della stabilità.
 
 ```bash
 .venv/bin/python main.py --experiment static-obstacles --obstacle-count 4 \
@@ -296,20 +296,42 @@ $$
 
 Questa proprietà non costituisce una dimostrazione di convergenza globale verso la formazione desiderata: possono esistere altri punti critici. Inoltre, la discretizzazione richiede una scelta appropriata del passo temporale.
 
-### 5.3 Potenziale di navigazione del baricentro
+### 5.3 Potenziale di navigazione del baricentro con funzione di Huber
+
+Il baricentro e l'errore radiale rispetto al goal sono:
 
 $$
-c=\frac{1}{N}\sum_{i=1}^Np_i, \qquad
-V_g(p)=\frac{k_gN}{2}\lVert c-g\rVert^2.
+c=\frac{1}{N}\sum_{i=1}^Np_i, \qquad e_g=\lVert c-g\rVert.
 $$
 
-Il fattore $N$ rende il gradiente rispetto a ogni posizione coerente con il comando comune:
+Si introduce la funzione di Huber standard, con soglia $\delta_g>0$:
 
 $$
-u_{g,i}=-\nabla_{p_i}V_g=k_g(g-c).
+\mathcal H_{\delta_g}(e)=
+\begin{cases}
+\dfrac{1}{2}e^2, & 0\leq e\leq\delta_g,\\
+\delta_g\left(e-\dfrac{\delta_g}{2}\right), & e>\delta_g.
+\end{cases}
 $$
 
-Il solo comando di navigazione non modifica le distanze relative, prima della saturazione, perché:
+Il potenziale implementato è la Huber scalata:
+
+$$
+V_g(p)=\frac{k_gN}{\delta_g}\,\mathcal H_{\delta_g}(e_g).
+$$
+
+La scalatura $1/\delta_g$ fa sì che il modulo del comando sia $k_g$ nel ramo lineare. Il comando comune risulta:
+
+$$
+u_{g,i}=-\nabla_{p_i}V_g=
+\begin{cases}
+\dfrac{k_g}{\delta_g}(g-c), & 0<e_g\leq\delta_g,\\
+k_g\dfrac{g-c}{e_g}, & e_g>\delta_g,\\
+0, & e_g=0.
+\end{cases}
+$$
+
+Nel ramo $e_g>\delta_g$ la velocità di navigazione ha modulo costante $k_g$, invece di essere proporzionale alla distanza. Questo evita il rallentamento esponenziale del potenziale quadratico puro durante l'avvicinamento al goal. Negli esperimenti $\delta_g=0.05\,\mathrm{m}<\varepsilon_g=0.1\,\mathrm{m}$: il criterio di arrivo arresta il MAS prima che il moto entri nel nucleo quadratico della Huber. Il solo comando di navigazione non modifica le distanze relative, prima della saturazione, perché:
 
 $$
 u_{g,i}-u_{g,j}=0.
@@ -325,7 +347,7 @@ $$
 Il goal è costruito una sola volta:
 
 $$
-g=c(t_a)+d_g\begin{bmatrix}\cos\theta\\\sin\theta\end{bmatrix},
+g=c(t_a)+D_g\begin{bmatrix}\cos\theta\\\sin\theta\end{bmatrix},
 \qquad \theta\sim\mathcal U([0,2\pi)).
 $$
 
@@ -446,9 +468,10 @@ L'assenza di `--seed` produce scenari diversi ad ogni esecuzione. I valori CLI p
 |---|---|
 | Lato del triangolo desiderato | 2 m |
 | Guadagno di formazione `gain` | 1.0 |
-| Guadagno di navigazione | 0.6; 0.3 in `dynamic-navigation` |
+| Modulo del comando di navigazione nel ramo lineare Huber | 0.6 m/s |
+| Soglia Huber del goal $\delta_g$ | 0.05 m |
 | Tolleranza sulle distanze per avviare la navigazione | 0.001 m |
-| Tolleranza di arrivo del baricentro | 0.1 m |
+| Tolleranza di arrivo del baricentro $\varepsilon_g$ | 0.1 m |
 | Guadagno repulsivo negli scenari con ostacoli | 0.3 |
 | Distanza di influenza misurata fra i bordi | 2.0 m |
 | Clearance minima di regolarizzazione | 0.05 m |

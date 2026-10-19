@@ -24,6 +24,15 @@ class TestNavigation(unittest.TestCase):
         self.assertGreater(np.linalg.norm(controls[0]), 0.0)
         self.assertGreater(controller.potential(self.target_positions), 0.0)
 
+    def test_huber_navigation_has_constant_speed_outside_huber_region(self) -> None:
+        controller = GoalNavigationController(
+            (0, 1, 2), goal=(10.0, 0.0), gain=0.6, arrival_tolerance=0.1, huber_delta=0.05
+        )
+
+        velocity = controller.velocity(self.target_positions)
+
+        self.assertAlmostEqual(np.linalg.norm(velocity), 0.6)
+
     def test_navigation_is_inactive_until_formation_is_reached(self) -> None:
         controller = FormationThenGoalController(
             formation_controller=FormationController(self.formation),

@@ -442,7 +442,7 @@ def run_dynamic_navigation_experiment(
         formation_controller=FormationController(formation=formation, gain=1.0),
         goal_distance=goal_distance,
         formation_tolerance=1e-3,
-        navigation_gain=0.3,
+        navigation_gain=0.6,
         goal_tolerance=0.1,
         goal_angle=goal_angle,
         obstacle_controller=obstacle_controller,
