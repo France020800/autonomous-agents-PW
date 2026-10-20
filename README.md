@@ -117,8 +117,6 @@ Gli agenti partono già in formazione e non ricevono un comando di navigazione. 
 
 Aprire quindi <http://localhost:8000/interactive/dynamic_navigation.html>.
 
-Il documento è autonomo e non richiede Python, librerie JavaScript esterne o una connessione Internet durante la visualizzazione. Può inoltre essere pubblicato come pagina statica tramite GitHub Pages, configurando `docs/` come cartella di pubblicazione. La pubblicazione non viene effettuata automaticamente dal progetto.
-
 Per esportare una nuova simulazione senza aprire finestre grafiche:
 
 ```bash
@@ -171,7 +169,7 @@ Su Windows, sostituire `.venv/bin/python` con `.venv\Scripts\python.exe`.
 
 ## 4. Modello matematico
 
-Le formule utilizzano la notazione matematica supportata da GitHub, con espressioni in linea e blocchi LaTeX separati. Per una corretta lettura in editor locali è necessario un visualizzatore Markdown con supporto matematico.
+Per una corretta lettura in editor locali è necessario un visualizzatore Markdown con supporto matematico.
 
 ### 4.1 Notazione e ipotesi
 
@@ -197,7 +195,7 @@ $$
 dove il comando applicato $\bar u_i$ è ottenuto saturando il comando richiesto:
 
 $$
-\bar u_i=\operatorname{sat}_{u_{\max,i}}(u_i)=
+\bar u_i=\mathrm{sat}_{u_{\max,i}}(u_i)=
 \begin{cases}
 u_i, & \lVert u_i\rVert\leq u_{\max,i},\\
 u_{\max,i}\dfrac{u_i}{\lVert u_i\rVert}, & \lVert u_i\rVert>u_{\max,i}.
