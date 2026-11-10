@@ -4,7 +4,7 @@
 
 Il progetto studia l'interazione fra tre obiettivi di controllo: mantenimento delle distanze relative, navigazione del baricentro verso un obiettivo e repulsione dagli ostacoli. Gli esperimenti permettono di analizzare sia il comportamento nominale sia deformazioni della formazione ed equilibri indesiderati.
 
-La versione corrente costituisce una **baseline APF reattiva**: gli ostacoli possono muoversi, ma il controllo repulsivo utilizza solo la loro posizione istantanea. Un potenziale predittivo dipendente dalla velocità non è ancora implementato.
+Per gli ostacoli mobili il progetto implementa un **controllo repulsivo predittivo**: conoscendo la velocità costante di ciascun ostacolo, vengono valutate la distanza attuale e quelle predette lungo un orizzonte temporale finito, selezionando per ciascun ostacolo la distanza minima (ponendo l'orizzonte a zero si recupera la baseline puramente reattiva).
 
 ## Indice
 
@@ -173,7 +173,7 @@ Per una corretta lettura in editor locali è necessario un visualizzatore Markdo
 
 ### 4.1 Notazione e ipotesi
 
-- $N=3$: numero di agenti; $M$: numero di ostacoli.
+- $N\geq 3$: numero di agenti (default $N=3$); $M$: numero di ostacoli.
 - $p_i\in\mathbb{R}^2$: posizione del centro dell'agente $i$.
 - $q_j\in\mathbb{R}^2$: posizione del centro dell'ostacolo $j$.
 - $r_i$ e $R_j$: raggi fisici, rispettivamente di agente e ostacolo.
@@ -198,7 +198,7 @@ $$
 \bar u_i=\mathrm{sat}_{u_{\max,i}}(u_i)=
 \begin{cases}
 u_i, & \lVert u_i\rVert\leq u_{\max,i},\\
-u_{\max,i}\dfrac{u_i}{\lVert u_i\rVert}, & \lVert u_i\rVert>u_{\max,i}.
+u_{\max,i}\dfrac{u_i}{\lVert u_i\rVert}, & \lVert u_i\rVert\gt u_{\max,i}.
 \end{cases}
 $$
 
@@ -210,11 +210,11 @@ $$
 \dot q_j(t)=v_j, \qquad q_j(t)=q_j(0)+t\,v_j.
 $$
 
-Il caso statico corrisponde a $v_j=0$. Negli scenari dinamici vengono estratte condizioni iniziali casuali, ma **direzione e velocità restano costanti durante ogni esecuzione**: non si tratta di un moto browniano o di cambiamenti casuali di direzione ad ogni passo.
+Il caso statico corrisponde a $v_j=0$. Negli scenari dinamici vengono estratte condizioni iniziali casuali, ma **direzione e velocità restano costanti durante ogni esecuzione**.
 
 ### 4.4 Discretizzazione e aggiornamento sincrono
 
-Con passo temporale $\Delta t>0$:
+Con passo temporale $\Delta t\gt 0$:
 
 $$
 \begin{aligned}
@@ -246,9 +246,9 @@ Le tre distanze devono essere positive e soddisfare le disuguaglianze strette de
 
 $$
 \begin{aligned}
-d_{01}+d_{02}&>d_{12},\\
-d_{01}+d_{12}&>d_{02},\\
-d_{02}+d_{12}&>d_{01}.
+d_{01}+d_{02}&\gt d_{12},\\
+d_{01}+d_{12}&\gt d_{02},\\
+d_{02}+d_{12}&\gt d_{01}.
 \end{aligned}
 $$
 
@@ -263,7 +263,13 @@ formation = TriangularFormation.from_desired_distances(
 )
 ```
 
-Sono disponibili anche `equilateral(...)` e `from_reference_positions(...)`. Quest'ultimo ricava le distanze da una geometria di riferimento, senza imporre tali coordinate come destinazioni assolute.
+Sono disponibili anche `equilateral(...)` e `from_reference_positions(...)`. In particolare, `TriangularFormation.equilateral(agent_ids, side_length=L)` accetta $N\geq 3$ agenti e un'unica lunghezza di lato $L$: per $N=3$ crea il triangolo equilatero di lato $L$, mentre per $N\gt 3$ genera il grafo completo $K_N$ del poligono regolare di $N$ lati uguali a $L$, assegnando alle diagonali le corrispondenti corde:
+
+$$
+d_{ij}=L\,\frac{\sin(\pi\Delta_{ij}/N)}{\sin(\pi/N)},
+\qquad
+\Delta_{ij}=\min(\lvert i-j\rvert,\,N-\lvert i-j\rvert).
+$$
 
 ### 5.2 Potenziale e controllo distribuito di formazione
 
@@ -302,13 +308,13 @@ $$
 c=\frac{1}{N}\sum_{i=1}^Np_i, \qquad e_g=\lVert c-g\rVert.
 $$
 
-Si introduce la funzione di Huber standard, con soglia $\delta_g>0$:
+Si introduce la funzione di Huber standard, con soglia $\delta_g\gt 0$:
 
 $$
 \mathcal H_{\delta_g}(e)=
 \begin{cases}
 \dfrac{1}{2}e^2, & 0\leq e\leq\delta_g,\\
-\delta_g\left(e-\dfrac{\delta_g}{2}\right), & e>\delta_g.
+\delta_g\left(e-\dfrac{\delta_g}{2}\right), & e\gt\delta_g.
 \end{cases}
 $$
 
@@ -323,13 +329,13 @@ La scalatura $1/\delta_g$ fa sì che il modulo del comando sia $k_g$ nel ramo li
 $$
 u_{g,i}=-\nabla_{p_i}V_g=
 \begin{cases}
-\dfrac{k_g}{\delta_g}(g-c), & 0<e_g\leq\delta_g,\\
-k_g\dfrac{g-c}{e_g}, & e_g>\delta_g,\\
+\dfrac{k_g}{\delta_g}(g-c), & 0\lt e_g\leq\delta_g,\\
+k_g\dfrac{g-c}{e_g}, & e_g\gt\delta_g,\\
 0, & e_g=0.
 \end{cases}
 $$
 
-Nel ramo $e_g>\delta_g$ la velocità di navigazione ha modulo costante $k_g$, invece di essere proporzionale alla distanza. Questo evita il rallentamento esponenziale del potenziale quadratico puro durante l'avvicinamento al goal. Negli esperimenti $\delta_g=0.05\,\mathrm{m}<\varepsilon_g=0.1\,\mathrm{m}$: il criterio di arrivo arresta il MAS prima che il moto entri nel nucleo quadratico della Huber. Il solo comando di navigazione non modifica le distanze relative, prima della saturazione, perché:
+Nel ramo $e_g\gt\delta_g$ la velocità di navigazione ha modulo costante $k_g$, invece di essere proporzionale alla distanza. Questo evita il rallentamento esponenziale del potenziale quadratico puro durante l'avvicinamento al goal. Negli esperimenti si ha $\delta_g=0.05\,\mathrm{m}$ e $\varepsilon_g=0.1\,\mathrm{m}$ ($\delta_g\lt\varepsilon_g$): il criterio di arrivo arresta il MAS prima che il moto entri nel nucleo quadratico della Huber. Il solo comando di navigazione non modifica le distanze relative, prima della saturazione, perché:
 
 $$
 u_{g,i}-u_{g,j}=0.
@@ -339,7 +345,7 @@ La navigazione si attiva al primo istante $t_a$ in cui:
 
 $$
 \max_{(i,j)\in\mathcal E}
-\left|\lVert p_i-p_j\rVert-d_{ij}\right|\leq\varepsilon_f.
+\lvert\lVert p_i-p_j\rVert-d_{ij}\rvert\leq\varepsilon_f.
 $$
 
 Il goal è costruito una sola volta:
@@ -369,13 +375,13 @@ $$
 \rho_{ij}=\lVert p_i-q_j\rVert-r_i-R_j.
 $$
 
-Per $\rho_{ij}>0$, il potenziale ideale è:
+Per $\rho_{ij}\gt 0$, il potenziale ideale è:
 
 $$
 V_{o,ij}=
 \begin{cases}
 \dfrac{k_o}{2}\left(\dfrac{1}{\rho_{ij}}-\dfrac{1}{\rho_0}\right)^2,
-&0<\rho_{ij}<\rho_0,\\
+&0\lt\rho_{ij}\lt\rho_0,\\
 0,&\rho_{ij}\geq\rho_0.
 \end{cases}
 $$
@@ -386,7 +392,7 @@ $$
 V_o(p,q)=\sum_{i=1}^{N}\sum_{j=1}^{M}V_{o,ij}.
 $$
 
-Indicando con $\mathcal O_i=\{j:0<\rho_{ij}<\rho_0\}$ gli ostacoli influenti, il comando nel dominio non regolarizzato è:
+Indicando con $\mathcal O_i=\{j:0\lt\rho_{ij}\lt\rho_0\}$ gli ostacoli influenti, il comando nel dominio non regolarizzato è:
 
 $$
 u_{o,i}=-\nabla_{p_i}V_o
@@ -414,8 +420,42 @@ $$
 Pertanto il campo si attiva per distanze fra centri inferiori a:
 
 $$
-\lVert p_i-q_j\rVert<r_i+R_j+\rho_0=2.6\,\mathrm{m}.
+\lVert p_i-q_j\rVert\lt r_i+R_j+\rho_0=2.6\,\mathrm{m}.
 $$
+
+#### Estensione predittiva per ostacoli mobili
+
+Quando l'ostacolo $j$ si muove con velocità nota $v_j$, `PredictiveObstacleAvoidanceController` discretizza l'orizzonte di predizione $T_p\geq 0$ in $M_p$ passi futuri oltre all'istante corrente ($\tau_0=0$):
+
+$$
+\tau_m=\frac{m}{M_p}T_p, \qquad
+\widehat q_{j,m}(t)=q_j(t)+\tau_m v_j, \qquad
+m=0,1,\ldots,M_p.
+$$
+
+Per ogni coppia agente–ostacolo $(i,j)$ si considerano la distanza attuale ($m=0$) e quelle future ($m=1,\ldots,M_p$), selezionando l'istante che realizza la **distanza minore**:
+
+$$
+m_{ij}^\star=\arg\min_{m\in\{0,\ldots,M_p\}}\lVert p_i-\widehat q_{j,m}(t)\rVert,
+\qquad
+q_{ij}^\star=\widehat q_{j,m_{ij}^\star}(t),
+$$
+
+$$
+\rho_{ij}^\star=\lVert p_i-q_{ij}^\star\rVert-r_i-R_j,
+\qquad
+\widetilde\rho_{ij}^\star=\max(\rho_{ij}^\star,\rho_{\min}).
+$$
+
+Il potenziale repulsivo $V_{o,ij}$ e il contributo di controllo $u_{o,i}$ sono quindi calcolati sostituendo $q_j$ con $q_{ij}^\star$ e $\rho_{ij}$ con $\rho_{ij}^\star$:
+
+$$
+u_{o,i}=\sum_{j:\,\rho_{ij}^\star\lt\rho_0}k_o
+\left(\frac{1}{\widetilde\rho_{ij}^\star}-\frac{1}{\rho_0}\right)
+\frac{p_i-q_{ij}^\star}{(\widetilde\rho_{ij}^\star)^2\lVert p_i-q_{ij}^\star\rVert}.
+$$
+
+Se l'ostacolo è in avvicinamento, uno dei campioni futuri ($m_{ij}^\star\gt 0$) risulta più vicino di quello attuale e anticipa la repulsione; se l'ostacolo si sta allontanando, la distanza minima resta quella istantanea ($m_{ij}^\star=0$); per $v_j=0$ oppure $T_p=0$ il controllore coincide con `PositionBasedObstacleAvoidanceController`.
 
 ### 5.5 Composizione e significato dei potenziali
 
@@ -445,11 +485,14 @@ Le condizioni iniziali casuali degli agenti sono estratte in `[-3, 3]²`, rifiut
 | Opzione | Significato | Default di `main.py` |
 |---|---|---|
 | `--experiment` | Scenario da eseguire | `static-obstacles` |
+| `--agent-count` | Numero di agenti del poligono regolare ($N\geq 3$) | `3` |
 | `--dt` | Passo temporale in secondi | `0.01` |
 | `--duration` | Durata in secondi | `25.0` |
 | `--goal-distance` | Distanza goal–baricentro all'attivazione, in metri | `8.0` |
 | `--obstacle-count` | Ostacoli statici, da 1 a 5 | `3` |
 | `--moving-obstacle-count` | Ostacoli mobili, da 1 a 3 | `1` |
+| `--prediction-horizon` | Orizzonte di predizione ostacoli mobili in secondi (`0` per reattivo) | `1.5` |
+| `--prediction-steps` | Numero di campioni futuri nell'orizzonte di predizione | `10` |
 | `--seed` | Seed delle estrazioni casuali | Nessuno |
 | `--save PATH` | Salva le due figure statiche | Nessuno |
 | `--export-html PATH` | Esporta pagina autonoma con slider e riproduzione | Nessuno |
@@ -473,6 +516,8 @@ L'assenza di `--seed` produce scenari diversi ad ogni esecuzione. I valori CLI p
 | Guadagno repulsivo negli scenari con ostacoli | 0.3 |
 | Distanza di influenza misurata fra i bordi | 2.0 m |
 | Clearance minima di regolarizzazione | 0.05 m |
+| Orizzonte di predizione ostacoli mobili $T_p$ | 1.5 s |
+| Passi futuri di predizione $M_p$ | 10 |
 
 Questi parametri sono definiti nelle funzioni in `experiments/basic_formation.py`; non sono tutti esposti tramite CLI. Variando il numero di ostacoli o la distanza del goal si possono generare scenari sfavorevoli: non è garantito che la formazione iniziale venga raggiunta entro la durata assegnata. In tal caso gli esperimenti con navigazione segnalano un errore.
 
@@ -504,7 +549,7 @@ Questi parametri sono definiti nelle funzioni in `experiments/basic_formation.py
 └── outputs/                    # Risultati delle esecuzioni locali
 ```
 
-`Environment` contiene agenti e ostacoli. Le leggi di controllo restano separate dai modelli dinamici. `FormationThenGoalController` gestisce la sequenza formazione–navigazione; `FormationWithObstacleAvoidanceController` combina formazione ed evitamento senza goal. `StaticObstacleAvoidanceController` limita gli ingressi a ostacoli immobili, mentre `PositionBasedObstacleAvoidanceController` ammette anche ostacoli mobili.
+`Environment` contiene agenti e ostacoli. Le leggi di controllo restano separate dai modelli dinamici. `FormationThenGoalController` gestisce la sequenza formazione–navigazione; `FormationWithObstacleAvoidanceController` combina formazione ed evitamento senza goal. `StaticObstacleAvoidanceController` limita gli ingressi a ostacoli immobili, `PositionBasedObstacleAvoidanceController` usa la sola posizione istantanea e `PredictiveObstacleAvoidanceController` valuta la distanza minima sull'orizzonte futuro degli ostacoli mobili.
 
 Le funzioni di esperimento restituiscono strutture dati con:
 
@@ -564,13 +609,7 @@ L'implementazione è destinata allo studio didattico e sperimentale. Non include
 3. un controllo dedicato alle collisioni fra agenti della formazione;
 4. interazioni o collision avoidance fra ostacoli;
 5. stima con rumore, ritardi di comunicazione o limiti di sensing;
-6. un meccanismo predittivo basato sulla velocità degli ostacoli;
+6. ostacoli con velocità variabile nel tempo o traiettorie curvilinee;
 7. un vincolo di mantenimento del baricentro negli esperimenti senza goal.
 
-Il passo successivo consiste nel confrontare la baseline con una repulsione basata su una posizione predetta:
-
-$$
-\widehat q_j(t+T)=q_j(t)+T\,v_j,
-$$
-
-o su una distanza di massimo avvicinamento ricavata da posizione e velocità relative. Tali estensioni richiedono una definizione esplicita dell'orizzonte di previsione e una valutazione comparativa su identiche condizioni iniziali.
+Possibili sviluppi futuri riguardano l'inclusione della velocità nominale dell'agente nella stima del punto di massimo avvicinamento e l'estensione a ostacoli con moto non rettilineo uniforme.

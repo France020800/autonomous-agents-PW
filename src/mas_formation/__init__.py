@@ -3,13 +3,14 @@
 from .controllers import (
     FormationController, FormationThenGoalController, FormationWithObstacleAvoidanceController,
     GoalNavigationController,
-    PositionBasedObstacleAvoidanceController, StaticObstacleAvoidanceController,
+    PositionBasedObstacleAvoidanceController, PredictiveObstacleAvoidanceController,
+    StaticObstacleAvoidanceController,
 )
 from .models import Agent, DynamicObstacle, Environment, FormationEdge, TriangularFormation
 
 __all__ = [
     "Agent", "DynamicObstacle", "Environment", "FormationEdge", "TriangularFormation", "FormationController",
     "FormationThenGoalController", "FormationWithObstacleAvoidanceController", "GoalNavigationController",
-    "PositionBasedObstacleAvoidanceController",
+    "PositionBasedObstacleAvoidanceController", "PredictiveObstacleAvoidanceController",
     "StaticObstacleAvoidanceController"
 ]

@@ -13,6 +13,7 @@ from mas_formation.controllers import (
     FormationThenGoalController,
     FormationWithObstacleAvoidanceController,
     PositionBasedObstacleAvoidanceController,
+    PredictiveObstacleAvoidanceController,
     StaticObstacleAvoidanceController,
 )
 from mas_formation.models import Agent, DynamicObstacle, Environment, TriangularFormation
@@ -68,10 +69,25 @@ class DynamicNavigationExperimentResult(FormationGoalExperimentResult):
     obstacle_potentials: NDArray[np.float64]
 
 
+def _formation_gain(agent_count: int) -> float:
+    """Scala il guadagno di formazione per mantenere costante la rigidezza effettiva per N >= 3."""
+    if agent_count == 3:
+        return 1.0
+    return float((3.0 / agent_count) * (np.sin(np.pi / agent_count) / np.sin(np.pi / 3.0)) ** 2)
+
+
+def _validate_agent_count(agent_count: int) -> None:
+    if isinstance(agent_count, bool) or not isinstance(agent_count, int) or agent_count < 3:
+        raise ValueError("agent_count deve essere un intero maggiore o uguale a 3.")
+
+
 def run_basic_formation_experiment(
-    dt: float = 0.01, duration: float = 15.0, seed: int | None = None
+    dt: float = 0.01,
+    duration: float = 15.0,
+    seed: int | None = None,
+    agent_count: int = 3,
 ) -> ExperimentResult:
-    """Simula tre agenti casuali che raggiungono un triangolo equilatero.
+    """Simula agenti casuali che raggiungono un poligono regolare rigido.
 
     L'esperimento isola il controllore di formazione: non sono presenti né
     obiettivo di navigazione né ostacoli. ``seed`` rende riproducibile
@@ -82,16 +98,14 @@ def run_basic_formation_experiment(
         raise ValueError("dt deve essere finito e strettamente positivo.")
     if duration <= 0 or not np.isfinite(duration):
         raise ValueError("duration deve essere finita e strettamente positiva.")
+    _validate_agent_count(agent_count)
 
     steps = round(duration / dt)
     if not np.isclose(steps * dt, duration):
         raise ValueError("duration deve essere un multiplo intero di dt.")
 
-    formation = TriangularFormation.from_desired_distances(
-        agent_ids=(0, 1, 2),
-        desired_distances={(0, 1): 2.0, (0, 2): 2.0, (1, 2): 2.0},
-    )
-    controller = FormationController(formation=formation, gain=1.0)
+    formation = TriangularFormation.equilateral(tuple(range(agent_count)), side_length=2.0)
+    controller = FormationController(formation=formation, gain=_formation_gain(agent_count))
     initial_positions = _random_initial_positions(np.random.default_rng(seed), count=len(formation.agent_ids))
     agents = [
         Agent(identifier=identifier, position=initial_positions[index], max_speed=3.0)
@@ -131,6 +145,7 @@ def run_formation_goal_experiment(
     duration: float = 25.0,
     seed: int | None = None,
     goal_distance: float = 8.0,
+    agent_count: int = 3,
 ) -> FormationGoalExperimentResult:
     """Raggiunge la formazione e solo dopo trasla il MAS verso un goal casuale."""
     if dt <= 0 or not np.isfinite(dt):
@@ -139,22 +154,20 @@ def run_formation_goal_experiment(
         raise ValueError("duration deve essere finita e strettamente positiva.")
     if goal_distance <= 0 or not np.isfinite(goal_distance):
         raise ValueError("goal_distance deve essere finita e strettamente positiva.")
+    _validate_agent_count(agent_count)
 
     steps = round(duration / dt)
     if not np.isclose(steps * dt, duration):
         raise ValueError("duration deve essere un multiplo intero di dt.")
 
-    formation = TriangularFormation.from_desired_distances(
-        agent_ids=(0, 1, 2),
-        desired_distances={(0, 1): 2.0, (0, 2): 2.0, (1, 2): 2.0},
-    )
+    formation = TriangularFormation.equilateral(tuple(range(agent_count)), side_length=2.0)
     initial_positions = _random_initial_positions(np.random.default_rng(seed), count=len(formation.agent_ids))
     environment = Environment([
         Agent(identifier=identifier, position=initial_positions[index], max_speed=3.0)
         for index, identifier in enumerate(formation.agent_ids)
     ])
     mission_controller = FormationThenGoalController(
-        formation_controller=FormationController(formation=formation, gain=1.0),
+        formation_controller=FormationController(formation=formation, gain=_formation_gain(agent_count)),
         goal_distance=goal_distance,
         formation_tolerance=1e-3,
         navigation_gain=0.6,
@@ -208,6 +221,7 @@ def run_static_obstacle_experiment(
     seed: int | None = None,
     goal_distance: float = 8.0,
     obstacle_count: int = 3,
+    agent_count: int = 3,
 ) -> StaticObstacleExperimentResult:
     """Esegue formazione, navigazione e evitamento di più ostacoli fissi."""
     if dt <= 0 or not np.isfinite(dt):
@@ -218,15 +232,13 @@ def run_static_obstacle_experiment(
         raise ValueError("goal_distance deve essere finita e strettamente positiva.")
     if not isinstance(obstacle_count, int) or not 1 <= obstacle_count <= 5:
         raise ValueError("obstacle_count deve essere un intero compreso fra 1 e 5.")
+    _validate_agent_count(agent_count)
 
     steps = round(duration / dt)
     if not np.isclose(steps * dt, duration):
         raise ValueError("duration deve essere un multiplo intero di dt.")
 
-    formation = TriangularFormation.from_desired_distances(
-        agent_ids=(0, 1, 2),
-        desired_distances={(0, 1): 2.0, (0, 2): 2.0, (1, 2): 2.0},
-    )
+    formation = TriangularFormation.equilateral(tuple(range(agent_count)), side_length=2.0)
     generator = np.random.default_rng(seed)
     initial_positions = _random_initial_positions(generator, count=len(formation.agent_ids))
     initial_centroid = initial_positions.mean(axis=0)
@@ -251,7 +263,7 @@ def run_static_obstacle_experiment(
         minimum_clearance=0.05,
     )
     mission_controller = FormationThenGoalController(
-        formation_controller=FormationController(formation=formation, gain=1.0),
+        formation_controller=FormationController(formation=formation, gain=_formation_gain(agent_count)),
         goal_distance=goal_distance,
         formation_tolerance=1e-3,
         navigation_gain=0.6,
@@ -309,11 +321,14 @@ def run_moving_obstacle_experiment(
     duration: float = 20.0,
     moving_obstacle_count: int = 1,
     seed: int | None = None,
+    prediction_horizon: float = 1.5,
+    prediction_steps: int = 10,
+    agent_count: int = 3,
 ) -> MovingObstacleExperimentResult:
     """Mantiene una formazione immobile, perturbata da ostacoli mobili casuali.
 
     Non sono presenti goal né termine di navigazione. Gli agenti partono già
-    nella formazione equilatera desiderata, perciò si muovono esclusivamente
+    nella formazione regolare desiderata, perciò si muovono esclusivamente
     quando l'APF repulsivo degli ostacoli mobili entra nel raggio d'influenza.
     Ogni ostacolo ha una direzione, velocità e punto di attraversamento casuali
     ma costanti, quindi percorre una traiettoria rettilinea.
@@ -324,30 +339,32 @@ def run_moving_obstacle_experiment(
         raise ValueError("duration deve essere finita e strettamente positiva.")
     if not isinstance(moving_obstacle_count, int) or not 1 <= moving_obstacle_count <= 3:
         raise ValueError("moving_obstacle_count deve essere un intero compreso fra 1 e 3.")
+    _validate_agent_count(agent_count)
 
     steps = round(duration / dt)
     if not np.isclose(steps * dt, duration):
         raise ValueError("duration deve essere un multiplo intero di dt.")
 
-    formation = TriangularFormation.equilateral((0, 1, 2), side_length=2.0)
-    sqrt3 = np.sqrt(3.0)
+    formation = TriangularFormation.equilateral(tuple(range(agent_count)), side_length=2.0)
+    reference_positions = formation.regular_polygon_positions(side_length=2.0)
     agents = [
-        Agent(identifier=0, position=(-1.0, -sqrt3 / 3.0), radius=0.15, max_speed=3.0),
-        Agent(identifier=1, position=(1.0, -sqrt3 / 3.0), radius=0.15, max_speed=3.0),
-        Agent(identifier=2, position=(0.0, 2.0 * sqrt3 / 3.0), radius=0.15, max_speed=3.0),
+        Agent(identifier=identifier, position=reference_positions[identifier], radius=0.15, max_speed=3.0)
+        for identifier in formation.agent_ids
     ]
     generator = np.random.default_rng(seed)
     obstacles = _generate_moving_obstacles(generator, moving_obstacle_count)
     environment = Environment(agents=agents, obstacles=list(obstacles))
-    obstacle_controller = PositionBasedObstacleAvoidanceController(
+    obstacle_controller = PredictiveObstacleAvoidanceController(
         agent_radii={agent.identifier: agent.radius for agent in agents},
         obstacles=obstacles,
         gain=0.3,
         influence_distance=2.0,
         minimum_clearance=0.05,
+        prediction_horizon=prediction_horizon,
+        prediction_steps=prediction_steps,
     )
     controller = FormationWithObstacleAvoidanceController(
-        formation_controller=FormationController(formation=formation, gain=1.0),
+        formation_controller=FormationController(formation=formation, gain=_formation_gain(agent_count)),
         obstacle_controller=obstacle_controller,
     )
 
@@ -392,6 +409,9 @@ def run_dynamic_navigation_experiment(
     seed: int | None = None,
     goal_distance: float = 8.0,
     moving_obstacle_count: int = 2,
+    prediction_horizon: float = 1.5,
+    prediction_steps: int = 10,
+    agent_count: int = 3,
 ) -> DynamicNavigationExperimentResult:
     """Naviga verso un goal casuale in presenza di ostacoli mobili casuali.
 
@@ -407,12 +427,13 @@ def run_dynamic_navigation_experiment(
         raise ValueError("goal_distance deve essere finita e strettamente positiva.")
     if not isinstance(moving_obstacle_count, int) or not 1 <= moving_obstacle_count <= 3:
         raise ValueError("moving_obstacle_count deve essere un intero compreso fra 1 e 3.")
+    _validate_agent_count(agent_count)
 
     steps = round(duration / dt)
     if not np.isclose(steps * dt, duration):
         raise ValueError("duration deve essere un multiplo intero di dt.")
 
-    formation = TriangularFormation.equilateral((0, 1, 2), side_length=2.0)
+    formation = TriangularFormation.equilateral(tuple(range(agent_count)), side_length=2.0)
     generator = np.random.default_rng(seed)
     initial_positions = _random_initial_positions(generator, count=len(formation.agent_ids))
     initial_centroid = initial_positions.mean(axis=0)
@@ -431,15 +452,17 @@ def run_dynamic_navigation_experiment(
         for index, identifier in enumerate(formation.agent_ids)
     ]
     environment = Environment(agents=agents, obstacles=list(obstacles))
-    obstacle_controller = PositionBasedObstacleAvoidanceController(
+    obstacle_controller = PredictiveObstacleAvoidanceController(
         agent_radii={agent.identifier: agent.radius for agent in agents},
         obstacles=obstacles,
         gain=0.3,
         influence_distance=2.0,
         minimum_clearance=0.05,
+        prediction_horizon=prediction_horizon,
+        prediction_steps=prediction_steps,
     )
     mission_controller = FormationThenGoalController(
-        formation_controller=FormationController(formation=formation, gain=1.0),
+        formation_controller=FormationController(formation=formation, gain=_formation_gain(agent_count)),
         goal_distance=goal_distance,
         formation_tolerance=1e-3,
         navigation_gain=0.6,
@@ -585,18 +608,26 @@ def _random_initial_positions(
     min_separation: float = 0.5,
     min_twice_area: float = 0.2,
 ) -> NDArray[np.float64]:
-    """Estrae posizioni separate e non quasi-collineari per il primo test."""
-    if count != 3:
-        raise ValueError("L'esperimento base è definito per esattamente tre agenti.")
+    """Estrae posizioni separate e non quasi-collineari per ``count >= 3`` agenti."""
+    _validate_agent_count(count)
+    effective_half_size = (
+        workspace_half_size
+        if count <= 5
+        else float(workspace_half_size * np.sqrt(count / 3.0))
+    )
 
     for _ in range(1_000):
-        points = generator.uniform(-workspace_half_size, workspace_half_size, size=(count, 2))
+        points = generator.uniform(-effective_half_size, effective_half_size, size=(count, 2))
         pair_distances = [np.linalg.norm(points[first] - points[second])
                           for first in range(count) for second in range(first + 1, count)]
         first_side = points[1] - points[0]
         second_side = points[2] - points[0]
         twice_area = abs(float(first_side[0] * second_side[1] - first_side[1] * second_side[0]))
         if min(pair_distances) >= min_separation and twice_area >= min_twice_area:
+            if count > 3:
+                centroid = points.mean(axis=0)
+                angles = np.arctan2(points[:, 1] - centroid[1], points[:, 0] - centroid[0])
+                points = points[np.argsort(angles)]
             return points
     raise RuntimeError("Impossibile generare condizioni iniziali valide.")
 

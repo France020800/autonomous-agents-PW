@@ -78,6 +78,44 @@ class TestBasicFormationExperiment(unittest.TestCase):
         self.assertGreater(result.obstacle_potentials.max(), 0.0)
         self.assertGreater(np.linalg.norm(result.obstacle_positions[-1] - result.obstacle_positions[0]), 0.0)
 
+    def test_predictive_avoidance_increases_minimum_clearance_with_moving_obstacles(self) -> None:
+        reactive = run_dynamic_navigation_experiment(
+            seed=42, moving_obstacle_count=2, prediction_horizon=0.0
+        )
+        predictive = run_dynamic_navigation_experiment(
+            seed=42, moving_obstacle_count=2, prediction_horizon=1.5, prediction_steps=10
+        )
+
+        def min_clearance(result) -> float:
+            diff = result.positions[:, :, None, :] - result.obstacle_positions[:, None, :, :]
+            distances = np.linalg.norm(diff, axis=-1)
+            radii = np.array([obstacle.radius for obstacle in result.obstacles])[None, None, :] + 0.15
+            return float((distances - radii).min())
+
+        first_reactive_step = int(np.nonzero(reactive.obstacle_potentials > 0.0)[0][0])
+        first_predictive_step = int(np.nonzero(predictive.obstacle_potentials > 0.0)[0][0])
+
+        self.assertLess(first_predictive_step, first_reactive_step)
+        self.assertGreater(min_clearance(predictive), min_clearance(reactive))
+
+    def test_experiments_support_configurable_agent_count_greater_than_three(self) -> None:
+        for agent_count in (4, 5):
+            result = run_basic_formation_experiment(seed=42, agent_count=agent_count)
+            self.assertEqual(len(result.agent_ids), agent_count)
+            self.assertTrue(
+                result.formation.is_satisfied(
+                    {identifier: result.final_positions[index] for index, identifier in enumerate(result.agent_ids)},
+                    tolerance=1e-4,
+                )
+            )
+
+        dynamic_result = run_dynamic_navigation_experiment(seed=42, agent_count=4, moving_obstacle_count=2)
+        self.assertEqual(len(dynamic_result.agent_ids), 4)
+        self.assertLessEqual(np.linalg.norm(dynamic_result.final_positions.mean(axis=0) - dynamic_result.goal), 0.1)
+
+        with self.assertRaises(ValueError):
+            run_basic_formation_experiment(agent_count=2)
+
 
 if __name__ == "__main__":
     unittest.main()

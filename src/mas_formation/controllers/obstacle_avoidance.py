@@ -1,12 +1,12 @@
-"""Evitamento di ostacoli circolari fissi tramite potenziale repulsivo."""
+"""Evitamento di ostacoli circolari statici e mobili tramite potenziale repulsivo."""
 
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
-from numpy.typing import ArrayLike
+from numpy.typing import ArrayLike, NDArray
 
 from mas_formation.models._vectors import Vector2, as_vector2
 from mas_formation.models.obstacle import DynamicObstacle
@@ -18,9 +18,7 @@ class PositionBasedObstacleAvoidanceController:
 
     Per la clearance ``rho = ||p_i-q_j|| - r_i-r_j`` usa il potenziale
     ``V_o = gain/2 * (1/rho - 1/influence_distance)^2`` entro il raggio
-    d'influenza e zero al di fuori. Può essere usato anche con ostacoli mobili,
-    ma non sfrutta ancora la loro velocità: la variante predittiva sarà
-    introdotta in un esperimento successivo.
+    d'influenza e zero al di fuori.
     """
 
     agent_radii: Mapping[int, float]
@@ -43,6 +41,13 @@ class PositionBasedObstacleAvoidanceController:
         object.__setattr__(self, "agent_radii", radii)
         object.__setattr__(self, "obstacles", obstacles)
 
+    def _effective_obstacle_position(
+        self, agent_position: Vector2, obstacle: DynamicObstacle
+    ) -> tuple[Vector2, float]:
+        """Restituisce posizione efficace dell'ostacolo e distanza centro-centro."""
+        center_distance = float(np.linalg.norm(agent_position - obstacle.position))
+        return obstacle.position, center_distance
+
     def potential_for(self, agent_id: int, position: ArrayLike) -> float:
         """Valore del potenziale repulsivo per un singolo agente."""
         if agent_id not in self.agent_radii:
@@ -50,7 +55,7 @@ class PositionBasedObstacleAvoidanceController:
         agent_position = as_vector2(position, name="position")
         potential = 0.0
         for obstacle in self.obstacles:
-            center_distance = float(np.linalg.norm(agent_position - obstacle.position))
+            _, center_distance = self._effective_obstacle_position(agent_position, obstacle)
             clearance = center_distance - self.agent_radii[agent_id] - obstacle.radius
             if clearance < self.influence_distance:
                 safe_clearance = max(clearance, self.minimum_clearance)
@@ -72,8 +77,8 @@ class PositionBasedObstacleAvoidanceController:
         control = np.zeros(2, dtype=float)
 
         for obstacle in self.obstacles:
-            displacement = agent_position - obstacle.position
-            center_distance = float(np.linalg.norm(displacement))
+            effective_position, center_distance = self._effective_obstacle_position(agent_position, obstacle)
+            displacement = agent_position - effective_position
             clearance = center_distance - self.agent_radii[agent_id] - obstacle.radius
             if clearance >= self.influence_distance:
                 continue
@@ -97,6 +102,55 @@ class PositionBasedObstacleAvoidanceController:
         if missing:
             raise ValueError(f"Mancano le posizioni degli agenti: {missing}.")
         return {agent_id: self.control_for(agent_id, positions[agent_id]) for agent_id in self.agent_radii}
+
+
+@dataclass(frozen=True)
+class PredictiveObstacleAvoidanceController(PositionBasedObstacleAvoidanceController):
+    """Genera repulsione APF considerando la posizione attuale e quelle future.
+
+    Conoscendo la velocità costante ``v_j`` di ciascun ostacolo, predice le
+    posizioni ``q_j + tau_m * v_j`` su una griglia uniforme nell'orizzonte
+    ``[0, prediction_horizon]`` (inclusa la posizione attuale ``tau_0 = 0``).
+    Per ogni coppia agente-ostacolo seleziona la distanza minore tra quella
+    attuale e quelle future e valuta potenziale e controllo repulsivo rispetto
+    al punto predetto più vicino.
+    """
+
+    prediction_horizon: float = 1.5
+    prediction_steps: int = 10
+    _prediction_times: NDArray[np.float64] = field(init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        if not np.isfinite(self.prediction_horizon) or self.prediction_horizon < 0.0:
+            raise ValueError("prediction_horizon deve essere finito e non negativo.")
+        if isinstance(self.prediction_steps, bool) or not isinstance(self.prediction_steps, int) or self.prediction_steps < 1:
+            raise ValueError("prediction_steps deve essere un intero maggiore o uguale a 1.")
+        if self.prediction_horizon == 0.0:
+            prediction_times = np.array((0.0,), dtype=float)
+        else:
+            prediction_times = np.linspace(0.0, self.prediction_horizon, self.prediction_steps + 1, dtype=float)
+        object.__setattr__(self, "_prediction_times", prediction_times)
+
+    def _effective_obstacle_position(
+        self, agent_position: Vector2, obstacle: DynamicObstacle
+    ) -> tuple[Vector2, float]:
+        if self.prediction_horizon == 0.0 or np.allclose(obstacle.velocity, 0.0):
+            return super()._effective_obstacle_position(agent_position, obstacle)
+
+        predicted_positions = (
+            obstacle.position[np.newaxis, :]
+            + self._prediction_times[:, np.newaxis] * obstacle.velocity[np.newaxis, :]
+        )
+        distances = np.linalg.norm(agent_position[np.newaxis, :] - predicted_positions, axis=1)
+        closest_index = int(np.argmin(distances))
+        return predicted_positions[closest_index], float(distances[closest_index])
+
+    def closest_predicted_position(self, position: ArrayLike, obstacle: DynamicObstacle) -> Vector2:
+        """Restituisce la posizione (attuale o futura) dell'ostacolo a distanza minima."""
+        agent_position = as_vector2(position, name="position")
+        effective_position, _ = self._effective_obstacle_position(agent_position, obstacle)
+        return effective_position.copy()
 
 
 class StaticObstacleAvoidanceController(PositionBasedObstacleAvoidanceController):

@@ -26,6 +26,10 @@ def parse_arguments() -> argparse.Namespace:
         default="static-obstacles",
         help="Esperimento: formazione, navigazione, ostacoli fissi, oppure ostacoli mobili.",
     )
+    parser.add_argument(
+        "--agent-count", type=int, default=3,
+        help="Numero di agenti del MAS (intero >= 3, disposti su un poligono regolare).",
+    )
     parser.add_argument("--goal-distance", type=float, default=8.0, help="Distanza iniziale goal-baricentro [m].")
     parser.add_argument(
         "--obstacle-count", type=int, default=3,
@@ -34,6 +38,14 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--moving-obstacle-count", type=int, default=1,
         help="Numero di ostacoli mobili nell'esperimento moving-obstacles (da 1 a 3).",
+    )
+    parser.add_argument(
+        "--prediction-horizon", type=float, default=1.5,
+        help="Orizzonte temporale di predizione per ostacoli mobili [s] (0 per avoidance reattivo).",
+    )
+    parser.add_argument(
+        "--prediction-steps", type=int, default=10,
+        help="Numero di campioni futuri nell'orizzonte di predizione degli ostacoli mobili.",
     )
     parser.add_argument("--save", type=str, help="Percorso opzionale in cui salvare il grafico.")
     parser.add_argument("--export-html", type=str, help="Esporta una pagina HTML autonoma con slider e riproduzione.")
@@ -49,13 +61,19 @@ def parse_arguments() -> argparse.Namespace:
 def main() -> None:
     arguments = parse_arguments()
     if arguments.experiment == "formation":
-        result = run_basic_formation_experiment(dt=arguments.dt, duration=arguments.duration, seed=arguments.seed)
+        result = run_basic_formation_experiment(
+            dt=arguments.dt,
+            duration=arguments.duration,
+            seed=arguments.seed,
+            agent_count=arguments.agent_count,
+        )
     elif arguments.experiment == "formation-goal":
         result = run_formation_goal_experiment(
             dt=arguments.dt,
             duration=arguments.duration,
             seed=arguments.seed,
             goal_distance=arguments.goal_distance,
+            agent_count=arguments.agent_count,
         )
     elif arguments.experiment == "dynamic-navigation":
         result = run_dynamic_navigation_experiment(
@@ -64,6 +82,9 @@ def main() -> None:
             seed=arguments.seed,
             goal_distance=arguments.goal_distance,
             moving_obstacle_count=arguments.moving_obstacle_count,
+            prediction_horizon=arguments.prediction_horizon,
+            prediction_steps=arguments.prediction_steps,
+            agent_count=arguments.agent_count,
         )
     elif arguments.experiment == "static-obstacles":
         result = run_static_obstacle_experiment(
@@ -72,6 +93,7 @@ def main() -> None:
             seed=arguments.seed,
             goal_distance=arguments.goal_distance,
             obstacle_count=arguments.obstacle_count,
+            agent_count=arguments.agent_count,
         )
     else:
         result = run_moving_obstacle_experiment(
@@ -79,6 +101,9 @@ def main() -> None:
             duration=arguments.duration,
             moving_obstacle_count=arguments.moving_obstacle_count,
             seed=arguments.seed,
+            prediction_horizon=arguments.prediction_horizon,
+            prediction_steps=arguments.prediction_steps,
+            agent_count=arguments.agent_count,
         )
     final_positions = {
         identifier: result.final_positions[index]

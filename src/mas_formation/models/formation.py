@@ -1,4 +1,4 @@
-"""Grafo dei vincoli metrici per una formazione triangolare rigida."""
+"""Grafo dei vincoli metrici per una formazione poligonale regolare rigida."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from itertools import combinations
 import numpy as np
 from numpy.typing import ArrayLike
 
-from ._vectors import as_vector2
+from ._vectors import Vector2, as_vector2
 
 
 @dataclass(frozen=True)
@@ -34,11 +34,12 @@ class FormationEdge:
 
 @dataclass(frozen=True)
 class TriangularFormation:
-    """Grafo completo ``K3`` che descrive una formazione rigida nel piano.
+    """Grafo completo ``K_N`` (con ``N >= 3``) che descrive una formazione rigida nel piano.
 
     Gli archi impongono ``||p_i - p_j|| = d_ij``. Le disuguaglianze strette
-    del triangolo garantiscono che i tre lati definiscano un triangolo non
-    degenere, rigido a meno di traslazioni, rotazioni e riflessioni.
+    del triangolo su ogni terna garantiscono che i vincoli siano metricamente
+    consistenti e non degeneri, definendo una figura rigida a meno di
+    traslazioni, rotazioni e riflessioni.
     """
 
     agent_ids: Sequence[int]
@@ -47,26 +48,81 @@ class TriangularFormation:
     def __post_init__(self) -> None:
         agent_ids = tuple(self.agent_ids)
         edges = tuple(self.edges)
-        if len(agent_ids) != 3 or len(set(agent_ids)) != 3:
-            raise ValueError("Una formazione triangolare richiede esattamente tre agenti distinti.")
+        if len(agent_ids) < 3 or len(set(agent_ids)) != len(agent_ids):
+            raise ValueError("Una formazione richiede almeno tre agenti distinti.")
 
         expected_keys = {frozenset(pair) for pair in combinations(agent_ids, 2)}
         actual_keys = [edge.key for edge in edges]
-        if len(edges) != 3 or len(set(actual_keys)) != 3 or set(actual_keys) != expected_keys:
-            raise ValueError("Il grafo deve contenere esattamente i tre archi del triangolo K3.")
+        if (
+            len(edges) != len(expected_keys)
+            or len(set(actual_keys)) != len(expected_keys)
+            or set(actual_keys) != expected_keys
+        ):
+            raise ValueError("Il grafo deve contenere esattamente tutti gli archi del grafo completo.")
 
-        lengths = sorted(edge.desired_distance for edge in edges)
-        if lengths[0] + lengths[1] <= lengths[2]:
-            raise ValueError("Le distanze desiderate devono soddisfare le disuguaglianze strette del triangolo.")
+        distance_by_key = {edge.key: edge.desired_distance for edge in edges}
+        for first, second, third in combinations(agent_ids, 3):
+            lengths = sorted((
+                distance_by_key[frozenset((first, second))],
+                distance_by_key[frozenset((first, third))],
+                distance_by_key[frozenset((second, third))],
+            ))
+            if lengths[0] + lengths[1] <= lengths[2]:
+                raise ValueError("Le distanze desiderate devono soddisfare le disuguaglianze strette del triangolo.")
 
         object.__setattr__(self, "agent_ids", agent_ids)
         object.__setattr__(self, "edges", edges)
 
     @classmethod
     def equilateral(cls, agent_ids: Sequence[int], side_length: float) -> "TriangularFormation":
-        """Costruisce un grafo ``K3`` con tutti i lati uguali."""
+        """Costruisce un poligono regolare rigido con tutti i lati di lunghezza ``side_length``.
+
+        Per 3 agenti genera il triangolo equilatero ``K3`` con tutti i lati uguali a
+        ``side_length``. Per ``N > 3`` agenti genera il grafo completo ``K_N`` di un
+        poligono regolare a ``N`` lati di lunghezza ``side_length``, assegnando alle
+        diagonali le corrispondenti corde del poligono regolare per garantirne la
+        rigidità metrica nel piano.
+        """
         ids = tuple(agent_ids)
-        return cls(ids, tuple(FormationEdge(first, second, side_length) for first, second in combinations(ids, 2)))
+        count = len(ids)
+        if count < 3 or len(set(ids)) != count:
+            raise ValueError("Una formazione regolare richiede almeno tre agenti distinti.")
+        if not np.isfinite(side_length) or side_length <= 0:
+            raise ValueError("side_length deve essere finita e strettamente positiva.")
+
+        sin_base = float(np.sin(np.pi / count))
+        edges = []
+        for first_index, second_index in combinations(range(count), 2):
+            step = min(second_index - first_index, count - (second_index - first_index))
+            distance = (
+                float(side_length)
+                if step == 1
+                else float(side_length * np.sin(np.pi * step / count) / sin_base)
+            )
+            edges.append(FormationEdge(ids[first_index], ids[second_index], distance))
+        return cls(ids, tuple(edges))
+
+    def regular_polygon_positions(self, side_length: float) -> dict[int, Vector2]:
+        """Restituisce i vertici del poligono regolare centrato nell'origine."""
+        if not np.isfinite(side_length) or side_length <= 0:
+            raise ValueError("side_length deve essere finita e strettamente positiva.")
+        count = len(self.agent_ids)
+        if count == 3:
+            sqrt3 = float(np.sqrt(3.0))
+            half = 0.5 * float(side_length)
+            return {
+                self.agent_ids[0]: np.array((-half, -half * sqrt3 / 3.0), dtype=float),
+                self.agent_ids[1]: np.array((half, -half * sqrt3 / 3.0), dtype=float),
+                self.agent_ids[2]: np.array((0.0, 2.0 * half * sqrt3 / 3.0), dtype=float),
+            }
+        circumradius = float(side_length / (2.0 * np.sin(np.pi / count)))
+        return {
+            identifier: circumradius * np.array((
+                np.cos(-0.5 * np.pi - (np.pi / count) + (2.0 * np.pi * index / count)),
+                np.sin(-0.5 * np.pi - (np.pi / count) + (2.0 * np.pi * index / count)),
+            ), dtype=float)
+            for index, identifier in enumerate(self.agent_ids)
+        }
 
     @classmethod
     def from_desired_distances(
@@ -75,13 +131,11 @@ class TriangularFormation:
         """Costruisce il grafo direttamente dalle distanze desiderate sugli archi.
 
         Non richiede coordinate assolute: il controllore di formazione porterà
-        gli agenti a una configurazione che rispetta tali distanze. Per un
-        triangolo devono essere presenti i tre archi, per esempio
-        ``{(0, 1): 2.0, (0, 2): 2.0, (1, 2): 2.0}``.
+        gli agenti a una configurazione che rispetta tali distanze.
         """
         ids = tuple(agent_ids)
-        if len(ids) != 3 or len(set(ids)) != 3:
-            raise ValueError("Una formazione triangolare richiede esattamente tre agenti distinti.")
+        if len(ids) < 3 or len(set(ids)) != len(ids):
+            raise ValueError("Una formazione richiede almeno tre agenti distinti.")
 
         normalized_distances: dict[frozenset[int], float] = {}
         for pair, distance in desired_distances.items():
@@ -94,7 +148,7 @@ class TriangularFormation:
 
         expected_keys = {frozenset(pair) for pair in combinations(ids, 2)}
         if set(normalized_distances) != expected_keys:
-            raise ValueError("Sono richieste esattamente le distanze dei tre archi del triangolo K3.")
+            raise ValueError("Sono richieste tutte le distanze degli archi del grafo completo.")
         return cls(
             ids,
             tuple(
@@ -107,9 +161,9 @@ class TriangularFormation:
     def from_reference_positions(
         cls, reference_positions: Mapping[int, ArrayLike]
     ) -> "TriangularFormation":
-        """Deriva gli archi metrici dalle coordinate di tre vertici di riferimento."""
-        if len(reference_positions) != 3:
-            raise ValueError("Sono necessarie esattamente tre posizioni di riferimento.")
+        """Deriva gli archi metrici dalle coordinate dei vertici di riferimento."""
+        if len(reference_positions) < 3:
+            raise ValueError("Sono necessarie almeno tre posizioni di riferimento.")
         ids = tuple(reference_positions)
         positions = {identifier: as_vector2(position, name=f"reference_positions[{identifier}]")
                      for identifier, position in reference_positions.items()}
