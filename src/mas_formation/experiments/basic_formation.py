@@ -1,4 +1,4 @@
-"""Primo esperimento: convergenza al triangolo senza goal né ostacoli."""
+"""Scenari di formazione poligonale regolare, navigazione e ostacoli."""
 
 from __future__ import annotations
 
@@ -12,7 +12,6 @@ from mas_formation.controllers import (
     FormationController,
     FormationThenGoalController,
     FormationWithObstacleAvoidanceController,
-    PositionBasedObstacleAvoidanceController,
     PredictiveObstacleAvoidanceController,
     StaticObstacleAvoidanceController,
 )
@@ -70,7 +69,7 @@ class DynamicNavigationExperimentResult(FormationGoalExperimentResult):
 
 
 def _formation_gain(agent_count: int) -> float:
-    """Scala il guadagno di formazione per mantenere costante la rigidezza effettiva per N >= 3."""
+    """Compensa la crescita di archi e distanze, senza garanzie di stabilità per ogni dt."""
     if agent_count == 3:
         return 1.0
     return float((3.0 / agent_count) * (np.sin(np.pi / agent_count) / np.sin(np.pi / 3.0)) ** 2)
@@ -684,7 +683,7 @@ def plot_basic_formation_result(result: ExperimentResult, save_path: str | Path 
                 axis_space.plot([], [], color="dimgray", linewidth=8, label="Posizione finale ostacolo")
         axis_space.set_title("Formazione perturbata da ostacoli mobili")
     else:
-        axis_space.set_title("Convergenza della formazione triangolare")
+        axis_space.set_title(f"Convergenza della formazione regolare ({len(result.agent_ids)} agenti)")
     axis_space.set_xlabel("x [m]")
     axis_space.set_ylabel("y [m]")
     axis_space.set_aspect("equal", adjustable="box")

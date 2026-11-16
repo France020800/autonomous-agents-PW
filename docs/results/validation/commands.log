@@ -1,0 +1,283 @@
+
+$ /Users/francesco/Desktop/France/UniFi/Magistrale/Secondo anno/Autonomus Agents/PW/.venv/bin/python -m venv /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv
+
+$ /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python -m pip wheel --no-deps --wheel-dir /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/wheels /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source
+Processing /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: mas-formation
+  Building wheel for mas-formation (pyproject.toml): started
+  Building wheel for mas-formation (pyproject.toml): finished with status 'done'
+  Created wheel for mas-formation: filename=mas_formation-0.1.0-py3-none-any.whl size=45092 sha256=641397bc47b0901ce123c854b7ccd7387e711ae3abbb77495124fc19cd661160
+  Stored in directory: /private/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/pip-ephem-wheel-cache-8nuj9om_/wheels/88/01/7c/35d33daed289f149707cae3fddd71e93e3802e25e542eca9ef
+Successfully built mas-formation
+
+$ /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python -m pip install --constraint /Users/francesco/Desktop/France/UniFi/Magistrale/Secondo anno/Autonomus Agents/PW/docs/results/validation/requirements.txt /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/wheels/mas_formation-0.1.0-py3-none-any.whl[dev]
+Processing /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/wheels/mas_formation-0.1.0-py3-none-any.whl (from mas-formation==0.1.0)
+Collecting numpy>=1.26 (from mas-formation==0.1.0->mas-formation==0.1.0)
+  Using cached numpy-2.5.5-cp312-cp312-macosx_14_0_arm64.whl.metadata (6.6 kB)
+Collecting matplotlib>=3.8 (from mas-formation==0.1.0->mas-formation==0.1.0)
+  Using cached matplotlib-3.11.2-cp312-cp312-macosx_11_0_arm64.whl.metadata (80 kB)
+Collecting pytest>=8 (from mas-formation==0.1.0->mas-formation==0.1.0)
+  Using cached pytest-9.2.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting contourpy>=1.0.1 (from matplotlib>=3.8->mas-formation==0.1.0->mas-formation==0.1.0)
+  Using cached contourpy-1.4.0-cp312-cp312-macosx_11_0_arm64.whl.metadata (3.8 kB)
+Collecting cycler>=0.10 (from matplotlib>=3.8->mas-formation==0.1.0->mas-formation==0.1.0)
+  Using cached cycler-0.12.1-py3-none-any.whl.metadata (3.8 kB)
+Collecting fonttools>=4.28.2 (from matplotlib>=3.8->mas-formation==0.1.0->mas-formation==0.1.0)
+  Using cached fonttools-4.68.0-cp312-cp312-macosx_10_13_universal2.whl.metadata (139 kB)
+Collecting kiwisolver>=1.3.1 (from matplotlib>=3.8->mas-formation==0.1.0->mas-formation==0.1.0)
+  Using cached kiwisolver-1.5.1-cp312-cp312-macosx_11_0_arm64.whl.metadata (5.2 kB)
+Collecting packaging>=20.0 (from matplotlib>=3.8->mas-formation==0.1.0->mas-formation==0.1.0)
+  Using cached packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+Collecting pillow>=9 (from matplotlib>=3.8->mas-formation==0.1.0->mas-formation==0.1.0)
+  Using cached pillow-13.0.0-cp312-cp312-macosx_11_0_arm64.whl.metadata (9.1 kB)
+Collecting pyparsing>=3 (from matplotlib>=3.8->mas-formation==0.1.0->mas-formation==0.1.0)
+  Using cached pyparsing-3.3.3-py3-none-any.whl.metadata (5.9 kB)
+Collecting python-dateutil>=2.7 (from matplotlib>=3.8->mas-formation==0.1.0->mas-formation==0.1.0)
+  Using cached python_dateutil-4.0.0-py3-none-any.whl.metadata (7.3 kB)
+Collecting iniconfig>=2 (from pytest>=8->mas-formation==0.1.0->mas-formation==0.1.0)
+  Using cached iniconfig-2.3.1-py3-none-any.whl.metadata (2.8 kB)
+Collecting pluggy<2,>=1.6 (from pytest>=8->mas-formation==0.1.0->mas-formation==0.1.0)
+  Using cached pluggy-1.7.0-py3-none-any.whl.metadata (5.0 kB)
+Collecting pygments>=2.15 (from pytest>=8->mas-formation==0.1.0->mas-formation==0.1.0)
+  Using cached pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting tzdata (from python-dateutil>=2.7->matplotlib>=3.8->mas-formation==0.1.0->mas-formation==0.1.0)
+  Using cached tzdata-2026.6-py2.py3-none-any.whl.metadata (1.4 kB)
+Using cached matplotlib-3.11.2-cp312-cp312-macosx_11_0_arm64.whl (9.3 MB)
+Using cached contourpy-1.4.0-cp312-cp312-macosx_11_0_arm64.whl (284 kB)
+Using cached cycler-0.12.1-py3-none-any.whl (8.3 kB)
+Using cached fonttools-4.68.0-cp312-cp312-macosx_10_13_universal2.whl (3.1 MB)
+Using cached kiwisolver-1.5.1-cp312-cp312-macosx_11_0_arm64.whl (64 kB)
+Using cached numpy-2.5.5-cp312-cp312-macosx_14_0_arm64.whl (5.5 MB)
+Using cached packaging-26.3-py3-none-any.whl (129 kB)
+Using cached pillow-13.0.0-cp312-cp312-macosx_11_0_arm64.whl (4.9 MB)
+Using cached pyparsing-3.3.3-py3-none-any.whl (126 kB)
+Using cached pytest-9.2.0-py3-none-any.whl (411 kB)
+Using cached pluggy-1.7.0-py3-none-any.whl (27 kB)
+Using cached iniconfig-2.3.1-py3-none-any.whl (7.6 kB)
+Using cached pygments-2.21.0-py3-none-any.whl (1.3 MB)
+Using cached python_dateutil-4.0.0-py3-none-any.whl (92 kB)
+Using cached tzdata-2026.6-py2.py3-none-any.whl (348 kB)
+Installing collected packages: tzdata, pyparsing, pygments, pluggy, pillow, packaging, numpy, kiwisolver, iniconfig, fonttools, cycler, python-dateutil, pytest, contourpy, matplotlib, mas-formation
+
+Successfully installed contourpy-1.4.0 cycler-0.12.1 fonttools-4.68.0 iniconfig-2.3.1 kiwisolver-1.5.1 mas-formation-0.1.0 matplotlib-3.11.2 numpy-2.5.5 packaging-26.3 pillow-13.0.0 pluggy-1.7.0 pygments-2.21.0 pyparsing-3.3.3 pytest-9.2.0 python-dateutil-4.0.0 tzdata-2026.6
+
+$ /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python -m pip check
+No broken requirements found.
+
+$ /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python -I -c import mas_formation; from pathlib import Path; import sys; p=Path(mas_formation.__file__).resolve(); print(p); assert Path(sys.prefix).resolve() in p.parents
+/private/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/lib/python3.12/site-packages/mas_formation/__init__.py
+
+$ /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python -m pytest -q --import-mode=importlib tests
+............................................                             [100%]
+44 passed in 13.18s
+
+$ /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py --help
+usage: main.py [-h] [--dt DT] [--duration DURATION]
+               [--experiment {formation,formation-goal,static-obstacles,moving-obstacles,dynamic-navigation}]
+               [--agent-count AGENT_COUNT] [--goal-distance GOAL_DISTANCE]
+               [--obstacle-count OBSTACLE_COUNT]
+               [--moving-obstacle-count MOVING_OBSTACLE_COUNT]
+               [--prediction-horizon PREDICTION_HORIZON]
+               [--prediction-steps PREDICTION_STEPS] [--save SAVE]
+               [--export-html EXPORT_HTML] [--seed SEED] [--no-plot]
+               [--interactive]
+
+Esperimenti per il controllo di formazione MAS.
+
+options:
+  -h, --help            show this help message and exit
+  --dt DT               Passo di integrazione [s].
+  --duration DURATION   Durata della simulazione [s].
+  --experiment {formation,formation-goal,static-obstacles,moving-obstacles,dynamic-navigation}
+                        Esperimento: formazione, navigazione, ostacoli fissi,
+                        oppure ostacoli mobili.
+  --agent-count AGENT_COUNT
+                        Numero di agenti del MAS (intero >= 3, disposti su un
+                        poligono regolare).
+  --goal-distance GOAL_DISTANCE
+                        Distanza iniziale goal-baricentro [m].
+  --obstacle-count OBSTACLE_COUNT
+                        Numero di ostacoli fissi nell'esperimento static-
+                        obstacles (da 1 a 5).
+  --moving-obstacle-count MOVING_OBSTACLE_COUNT
+                        Numero di ostacoli mobili nell'esperimento moving-
+                        obstacles (da 1 a 3).
+  --prediction-horizon PREDICTION_HORIZON
+                        Orizzonte temporale di predizione per ostacoli mobili
+                        [s] (0 per avoidance reattivo).
+  --prediction-steps PREDICTION_STEPS
+                        Numero di campioni futuri nell'orizzonte di predizione
+                        degli ostacoli mobili.
+  --save SAVE           Percorso opzionale in cui salvare il grafico.
+  --export-html EXPORT_HTML
+                        Esporta una pagina HTML autonoma con slider e
+                        riproduzione.
+  --seed SEED           Seed opzionale per rendere riproducibili le posizioni
+                        iniziali.
+  --no-plot             Esegue l'esperimento senza aprire il grafico.
+  --interactive         Mostra un grafico interattivo con slider temporale
+                        invece dei grafici statici.
+
+$ /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py --experiment formation --agent-count 3 --seed 42 --duration 15 --moving-obstacle-count 2 --no-plot --export-html /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/formation_3.html
+Esperimento completato.
+Potenziale iniziale: 231.019565
+Potenziale finale:   3.944305e-31
+Errori finali sulle distanze [m]:
+  (0, 1): -2.220446e-16
+  (0, 2): +0.000000e+00
+  (1, 2): +0.000000e+00
+Simulazione interattiva esportata in: /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/formation_3.html
+
+$ /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py --experiment formation-goal --agent-count 3 --seed 42 --duration 25 --moving-obstacle-count 2 --no-plot --export-html /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/formation-goal_3.html
+Esperimento completato.
+Potenziale iniziale: 231.019565
+Potenziale finale:   4.240127e-30
+Errori finali sulle distanze [m]:
+  (0, 1): -1.110223e-15
+  (0, 2): +0.000000e+00
+  (1, 2): -2.220446e-16
+Inizio navigazione: 0.98 s
+Goal casuale: (1.249, -6.442)
+Distanza finale del baricentro dal goal: 0.098000 m
+Simulazione interattiva esportata in: /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/formation-goal_3.html
+
+$ /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py --experiment static-obstacles --agent-count 3 --seed 42 --duration 25 --moving-obstacle-count 2 --no-plot --export-html /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/static-obstacles_3.html
+Esperimento completato.
+Potenziale iniziale: 231.019565
+Potenziale finale:   6.218737e-03
+Errori finali sulle distanze [m]:
+  (0, 1): +2.572633e-02
+  (0, 2): -7.923229e-03
+  (1, 2): -2.887498e-02
+Inizio navigazione: 0.98 s
+Goal casuale: (0.609, -6.513)
+Distanza finale del baricentro dal goal: 1.468186 m
+Simulazione interattiva esportata in: /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/static-obstacles_3.html
+
+$ /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py --experiment moving-obstacles --agent-count 3 --seed 42 --duration 30 --moving-obstacle-count 2 --no-plot --export-html /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/moving-obstacles_3.html
+Esperimento completato.
+Potenziale iniziale: 0.000000
+Potenziale finale:   1.031920e-05
+Errori finali sulle distanze [m]:
+  (0, 1): -1.427485e-03
+  (0, 2): -5.229620e-04
+  (1, 2): +5.196670e-04
+Simulazione interattiva esportata in: /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/moving-obstacles_3.html
+
+$ /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py --experiment dynamic-navigation --agent-count 3 --seed 42 --duration 30 --moving-obstacle-count 2 --no-plot --export-html /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/dynamic-navigation_3.html
+Esperimento completato.
+Potenziale iniziale: 231.019565
+Potenziale finale:   2.169367e-30
+Errori finali sulle distanze [m]:
+  (0, 1): +0.000000e+00
+  (0, 2): +0.000000e+00
+  (1, 2): -6.661338e-16
+Inizio navigazione: 0.98 s
+Goal casuale: (0.609, -6.513)
+Distanza finale del baricentro dal goal: 0.094151 m
+Simulazione interattiva esportata in: /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/dynamic-navigation_3.html
+
+$ /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py --experiment dynamic-navigation --agent-count 4 --seed 42 --duration 30 --moving-obstacle-count 2 --no-plot --export-html /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/dynamic-navigation_4.html
+Esperimento completato.
+Potenziale iniziale: 122.916645
+Potenziale finale:   9.853366e-29
+Errori finali sulle distanze [m]:
+  (0, 1): +3.996803e-15
+  (0, 2): +4.440892e-16
+  (0, 3): -1.776357e-15
+  (1, 2): +2.220446e-15
+  (1, 3): -4.440892e-16
+  (2, 3): -4.662937e-15
+Inizio navigazione: 1.24 s
+Goal casuale: (5.847, 7.377)
+Distanza finale del baricentro dal goal: 0.094866 m
+Simulazione interattiva esportata in: /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/dynamic-navigation_4.html
+
+$ /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py --experiment moving-obstacles --agent-count 5 --seed 42 --duration 30 --moving-obstacle-count 2 --no-plot --export-html /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/moving-obstacles_5.html
+Esperimento completato.
+Potenziale iniziale: 0.000000
+Potenziale finale:   9.644007e-16
+Errori finali sulle distanze [m]:
+  (0, 1): +1.682149e-08
+  (0, 2): -3.176526e-11
+  (0, 3): +4.959277e-11
+  (0, 4): -8.763076e-09
+  (1, 2): -1.846119e-08
+  (1, 3): -4.847722e-11
+  (1, 4): +2.884670e-11
+  (2, 3): +1.286992e-08
+  (2, 4): +1.804334e-12
+  (3, 4): -2.467139e-09
+Simulazione interattiva esportata in: /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/moving-obstacles_5.html
+
+$ /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py --experiment formation-goal --agent-count 6 --seed 42 --duration 25 --moving-obstacle-count 2 --no-plot --export-html /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/formation-goal_6.html
+Esperimento completato.
+Potenziale iniziale: 250.465575
+Potenziale finale:   3.600000e-29
+Errori finali sulle distanze [m]:
+  (0, 1): +2.220446e-15
+  (0, 2): +4.440892e-16
+  (0, 3): -1.776357e-15
+  (0, 4): -1.332268e-15
+  (0, 5): -1.998401e-15
+  (1, 2): -1.998401e-15
+  (1, 3): -1.776357e-15
+  (1, 4): -1.776357e-15
+  (1, 5): -4.440892e-16
+  (2, 3): +0.000000e+00
+  (2, 4): -4.440892e-16
+  (2, 5): -8.881784e-16
+  (3, 4): +0.000000e+00
+  (3, 5): +0.000000e+00
+  (4, 5): +0.000000e+00
+Inizio navigazione: 1.94 s
+Goal casuale: (0.959, -5.981)
+Distanza finale del baricentro dal goal: 0.098000 m
+Simulazione interattiva esportata in: /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/formation-goal_6.html
+
+$ /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py --experiment formation --agent-count 8 --seed 42 --duration 15 --moving-obstacle-count 2 --no-plot --export-html /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/formation_8.html
+Esperimento completato.
+Potenziale iniziale: 229.850765
+Potenziale finale:   1.890727e-28
+Errori finali sulle distanze [m]:
+  (0, 1): -4.218847e-15
+  (0, 2): -2.220446e-15
+  (0, 3): -8.881784e-16
+  (0, 4): -8.881784e-16
+  (0, 5): +8.881784e-16
+  (0, 6): -3.552714e-15
+  (0, 7): +7.105427e-15
+  (1, 2): +8.881784e-16
+  (1, 3): +3.996803e-15
+  (1, 4): +8.881784e-16
+  (1, 5): +0.000000e+00
+  (1, 6): -3.552714e-15
+  (1, 7): +2.664535e-15
+  (2, 3): +2.664535e-15
+  (2, 4): +1.332268e-15
+  (2, 5): +0.000000e+00
+  (2, 6): -1.776357e-15
+  (2, 7): +1.776357e-15
+  (3, 4): -1.554312e-15
+  (3, 5): -1.776357e-15
+  (3, 6): +0.000000e+00
+  (3, 7): +0.000000e+00
+  (4, 5): -1.776357e-15
+  (4, 6): +2.664535e-15
+  (4, 7): -2.664535e-15
+  (5, 6): +5.773160e-15
+  (5, 7): -3.108624e-15
+  (6, 7): -1.132427e-14
+Simulazione interattiva esportata in: /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/formation_8.html
+
+$ /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python -m mas_formation.experiments.compare_avoidance --output-dir /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/comparison
+Confronto salvato in: /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/comparison/report.md
+
+$ /var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python -c import importlib.metadata as m, json; print(json.dumps({d.metadata['Name']: d.version for d in m.distributions()}))
+{"kiwisolver": "1.5.1", "packaging": "26.3", "numpy": "2.5.5", "Pygments": "2.21.0", "iniconfig": "2.3.1", "pillow": "13.0.0", "contourpy": "1.4.0", "mas-formation": "0.1.0", "pip": "26.2.1", "pluggy": "1.7.0", "matplotlib": "3.11.2", "pytest": "9.2.0", "cycler": "0.12.1", "fonttools": "4.68.0", "tzdata": "2026.6", "python-dateutil": "4.0.0", "pyparsing": "3.3.3"}

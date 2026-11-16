@@ -1,0 +1,20 @@
+# Ambienti e artefatti Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+
+# Configurazione locale degli editor e del sistema
+.idea/
+.vscode/
+.DS_Store
+
+# Esecuzioni locali: i risultati di consegna sono in docs/results/
+outputs/
+
+# Materiale didattico locale, non necessario alla distribuzione
+/appunti-di-multiagent-systems.pdf

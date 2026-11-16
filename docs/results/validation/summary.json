@@ -1,0 +1,471 @@
+{
+  "status": "passed",
+  "python": "3.12.14",
+  "platform": "macOS-26.3-arm64-arm-64bit",
+  "commands": [
+    {
+      "arguments": [
+        "/Users/francesco/Desktop/France/UniFi/Magistrale/Secondo anno/Autonomus Agents/PW/.venv/bin/python",
+        "-m",
+        "venv",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu",
+      "returncode": 0
+    },
+    {
+      "arguments": [
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python",
+        "-m",
+        "pip",
+        "wheel",
+        "--no-deps",
+        "--wheel-dir",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/wheels",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu",
+      "returncode": 0
+    },
+    {
+      "arguments": [
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--constraint",
+        "/Users/francesco/Desktop/France/UniFi/Magistrale/Secondo anno/Autonomus Agents/PW/docs/results/validation/requirements.txt",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/wheels/mas_formation-0.1.0-py3-none-any.whl[dev]"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run",
+      "returncode": 0
+    },
+    {
+      "arguments": [
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run",
+      "returncode": 0
+    },
+    {
+      "arguments": [
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python",
+        "-I",
+        "-c",
+        "import mas_formation; from pathlib import Path; import sys; p=Path(mas_formation.__file__).resolve(); print(p); assert Path(sys.prefix).resolve() in p.parents"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run",
+      "returncode": 0
+    },
+    {
+      "arguments": [
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--import-mode=importlib",
+        "tests"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run",
+      "returncode": 0
+    },
+    {
+      "arguments": [
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py",
+        "--help"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run",
+      "returncode": 0
+    },
+    {
+      "arguments": [
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py",
+        "--experiment",
+        "formation",
+        "--agent-count",
+        "3",
+        "--seed",
+        "42",
+        "--duration",
+        "15",
+        "--moving-obstacle-count",
+        "2",
+        "--no-plot",
+        "--export-html",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/formation_3.html"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run",
+      "returncode": 0
+    },
+    {
+      "arguments": [
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py",
+        "--experiment",
+        "formation-goal",
+        "--agent-count",
+        "3",
+        "--seed",
+        "42",
+        "--duration",
+        "25",
+        "--moving-obstacle-count",
+        "2",
+        "--no-plot",
+        "--export-html",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/formation-goal_3.html"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run",
+      "returncode": 0
+    },
+    {
+      "arguments": [
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py",
+        "--experiment",
+        "static-obstacles",
+        "--agent-count",
+        "3",
+        "--seed",
+        "42",
+        "--duration",
+        "25",
+        "--moving-obstacle-count",
+        "2",
+        "--no-plot",
+        "--export-html",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/static-obstacles_3.html"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run",
+      "returncode": 0
+    },
+    {
+      "arguments": [
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py",
+        "--experiment",
+        "moving-obstacles",
+        "--agent-count",
+        "3",
+        "--seed",
+        "42",
+        "--duration",
+        "30",
+        "--moving-obstacle-count",
+        "2",
+        "--no-plot",
+        "--export-html",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/moving-obstacles_3.html"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run",
+      "returncode": 0
+    },
+    {
+      "arguments": [
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py",
+        "--experiment",
+        "dynamic-navigation",
+        "--agent-count",
+        "3",
+        "--seed",
+        "42",
+        "--duration",
+        "30",
+        "--moving-obstacle-count",
+        "2",
+        "--no-plot",
+        "--export-html",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/dynamic-navigation_3.html"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run",
+      "returncode": 0
+    },
+    {
+      "arguments": [
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py",
+        "--experiment",
+        "dynamic-navigation",
+        "--agent-count",
+        "4",
+        "--seed",
+        "42",
+        "--duration",
+        "30",
+        "--moving-obstacle-count",
+        "2",
+        "--no-plot",
+        "--export-html",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/dynamic-navigation_4.html"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run",
+      "returncode": 0
+    },
+    {
+      "arguments": [
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py",
+        "--experiment",
+        "moving-obstacles",
+        "--agent-count",
+        "5",
+        "--seed",
+        "42",
+        "--duration",
+        "30",
+        "--moving-obstacle-count",
+        "2",
+        "--no-plot",
+        "--export-html",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/moving-obstacles_5.html"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run",
+      "returncode": 0
+    },
+    {
+      "arguments": [
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py",
+        "--experiment",
+        "formation-goal",
+        "--agent-count",
+        "6",
+        "--seed",
+        "42",
+        "--duration",
+        "25",
+        "--moving-obstacle-count",
+        "2",
+        "--no-plot",
+        "--export-html",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/formation-goal_6.html"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run",
+      "returncode": 0
+    },
+    {
+      "arguments": [
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/source/main.py",
+        "--experiment",
+        "formation",
+        "--agent-count",
+        "8",
+        "--seed",
+        "42",
+        "--duration",
+        "15",
+        "--moving-obstacle-count",
+        "2",
+        "--no-plot",
+        "--export-html",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/formation_8.html"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run",
+      "returncode": 0
+    },
+    {
+      "arguments": [
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python",
+        "-m",
+        "mas_formation.experiments.compare_avoidance",
+        "--output-dir",
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run/comparison"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run",
+      "returncode": 0
+    },
+    {
+      "arguments": [
+        "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/venv/bin/python",
+        "-c",
+        "import importlib.metadata as m, json; print(json.dumps({d.metadata['Name']: d.version for d in m.distributions()}))"
+      ],
+      "cwd": "/var/folders/hs/27yfz65533g7m5d70lw2n8sr0000gn/T/mas-delivery-cbjw_evu/run",
+      "returncode": 0
+    }
+  ],
+  "source_sha256": {
+    "pyproject.toml": "167e8dc66b29c2a83ad6c815a9d4424a7bbfaecbc7d29baad475130ca04a1b97",
+    "main.py": "2814515a93b89ba1c6b3efdf487b8acb0c062187db073477eca07baf925a6b28",
+    "scripts/verify_clean_environment.py": "46f8fbfa63b92fe27fffbda3219c01a71a652d31e7eb26b87d0b58808d9e3557",
+    "src/mas_formation/__init__.py": "449d9cb86bed57a30f003849cd747da4e9e96445d552c6b1ba01ee5d5d2a6226",
+    "src/mas_formation/controllers/__init__.py": "418c1960bd9e29c47fca890f71444e44a48b7b4c25bac56d28993697cc51d65e",
+    "src/mas_formation/controllers/formation.py": "cd6401ec6f007c911662cfdeb16912a7ae55cc39174551de4d773cc80e42787c",
+    "src/mas_formation/controllers/mission.py": "67e3a32a90d01f59fd6e3235d58f4cfd0081f33fdcdf9aedbf0f28a96137e9f8",
+    "src/mas_formation/controllers/navigation.py": "c29ccce4ab85be9d8639f300d1f604c612707980c4cad18a0f589aa1198a5668",
+    "src/mas_formation/controllers/obstacle_avoidance.py": "2ec48cfe02dee39131fff92bac48f801beed963f78c11f48c7d0d88355362c6c",
+    "src/mas_formation/experiments/__init__.py": "78440aa3fd5152259200b20e10e29be1c9438961b4c13e46b5240a0e848c31c4",
+    "src/mas_formation/experiments/basic_formation.py": "5a75a0034822e3cc30e7c83d3cdc35c55c2fd376a93169d13bad28f1e26d8772",
+    "src/mas_formation/experiments/compare_avoidance.py": "39ce9211944242d66963755dab1ba1d5e0500b4ed6aa21a7a92e07196cb6ec80",
+    "src/mas_formation/experiments/html_viewer.py": "fe853aac53edfca9d6b1ad8416c07568726295b6d56d09fa6364320a01a0ad81",
+    "src/mas_formation/models/__init__.py": "8ceb4eb788daaeefe05fa09fd15f7d9ed26296847972908f64a0f6be87cc3acb",
+    "src/mas_formation/models/_vectors.py": "fcf2b1618da0baba96060da4e0ccdc3ebe9a1770a139fdc106992a6fe36d3d2e",
+    "src/mas_formation/models/agent.py": "11c409e7242650c6ec692de86144028677ee72c3f3d10234bbb32f59c22ce409",
+    "src/mas_formation/models/environment.py": "e260aea76507b425b548bc5edf9a6d134cc640c6623128daa22e14c66cc8aa19",
+    "src/mas_formation/models/formation.py": "0d4e7f141a359ec9b4ae82322429c95ca5ffc05c5a89ec39e12a7a56530ab2e0",
+    "src/mas_formation/models/obstacle.py": "45310dbddb0e23b625dc4ca03fa8aef95a2da551ae7f06497c670186ec5244c4",
+    "tests/test_avoidance_comparison.py": "7b425a8f1ecd55b3b73b869c6b43f7b19ad5d1b7ab79c1c972cb44b437e36ae2",
+    "tests/test_basic_experiment.py": "b14327e8c6eb5d2cd0c15856c9db4a643088356e847e90a16aed46bf5b25c590",
+    "tests/test_formation.py": "f6b3068402b7ee5ecc35f91be03b9300fb3747de328341acfe514ec9cdb6f2bc",
+    "tests/test_formation_controller.py": "f81ed89d49b2cc5689e5f50eeb259d1989751cc2505618fb01c4b028f7933f11",
+    "tests/test_html_viewer.py": "1d87f1b0606147f521b034f3f9e096511ac78d97b18a4444580d80d43e5e3ec1",
+    "tests/test_models.py": "d9e1468a47a529af29e842ac65eafe6889982ece37c4b6363398eeb694be0969",
+    "tests/test_navigation.py": "441c28658961fbc60d1dd4a569ffa6615899e70b5369d95ae7bbe733dbe781d4",
+    "tests/test_obstacle_avoidance.py": "d6daa658a9a3164be6665def6e46630959170228918f267a5141e59528d7d45e"
+  },
+  "pytest_output": "............................................                             [100%]\n44 passed in 13.18s",
+  "comparison": {
+    "configuration": {
+      "seed": 42,
+      "agent_count": 3,
+      "duration": 30.0,
+      "dt": 0.01,
+      "moving_obstacle_count": 2,
+      "prediction_steps": 10,
+      "predictive_horizon_s": 1.5,
+      "goal_distance_m": 8.0,
+      "agent_radius_m": 0.15,
+      "goal_tolerance_m": 0.1
+    },
+    "environment": {
+      "python": "3.12.14",
+      "numpy": "2.5.5",
+      "matplotlib": "3.11.2"
+    },
+    "results": [
+      {
+        "scenario": "moving-obstacles",
+        "mode": "reattivo",
+        "prediction_horizon_s": 0.0,
+        "minimum_real_clearance_m": 0.4624691438502087,
+        "contact_frames": 0,
+        "first_repulsion_time_s": 4.73,
+        "maximum_absolute_formation_error_m": 0.2001747898542119,
+        "rms_formation_error_m": 0.0579412693928074,
+        "final_maximum_formation_error_m": 1.7763568394002505e-15,
+        "navigation_start_time_s": null,
+        "first_goal_arrival_time_s": null,
+        "final_goal_error_m": null,
+        "goal_reached_at_end": null
+      },
+      {
+        "scenario": "moving-obstacles",
+        "mode": "predittivo",
+        "prediction_horizon_s": 1.5,
+        "minimum_real_clearance_m": 0.65224687466034,
+        "contact_frames": 0,
+        "first_repulsion_time_s": 3.23,
+        "maximum_absolute_formation_error_m": 0.15296332112804167,
+        "rms_formation_error_m": 0.04817263207241443,
+        "final_maximum_formation_error_m": 0.0014274849204467532,
+        "navigation_start_time_s": null,
+        "first_goal_arrival_time_s": null,
+        "final_goal_error_m": null,
+        "goal_reached_at_end": null
+      },
+      {
+        "scenario": "dynamic-navigation",
+        "mode": "reattivo",
+        "prediction_horizon_s": 0.0,
+        "minimum_real_clearance_m": 0.4133803536263763,
+        "contact_frames": 0,
+        "first_repulsion_time_s": 1.8800000000000001,
+        "maximum_absolute_formation_error_m": 3.196821328253785,
+        "rms_formation_error_m": 0.2048132882273613,
+        "final_maximum_formation_error_m": 6.661338147750939e-16,
+        "navigation_start_time_s": 0.98,
+        "first_goal_arrival_time_s": 17.95,
+        "final_goal_error_m": 0.09458618306749432,
+        "goal_reached_at_end": true
+      },
+      {
+        "scenario": "dynamic-navigation",
+        "mode": "predittivo",
+        "prediction_horizon_s": 1.5,
+        "minimum_real_clearance_m": 0.5597079521171964,
+        "contact_frames": 0,
+        "first_repulsion_time_s": 1.04,
+        "maximum_absolute_formation_error_m": 3.196821328253785,
+        "rms_formation_error_m": 0.19749115211946813,
+        "final_maximum_formation_error_m": 6.661338147750939e-16,
+        "navigation_start_time_s": 0.98,
+        "first_goal_arrival_time_s": 20.95,
+        "final_goal_error_m": 0.09415084444753224,
+        "goal_reached_at_end": true
+      }
+    ]
+  },
+  "versions": {
+    "kiwisolver": "1.5.1",
+    "packaging": "26.3",
+    "numpy": "2.5.5",
+    "Pygments": "2.21.0",
+    "iniconfig": "2.3.1",
+    "pillow": "13.0.0",
+    "contourpy": "1.4.0",
+    "mas-formation": "0.1.0",
+    "pip": "26.2.1",
+    "pluggy": "1.7.0",
+    "matplotlib": "3.11.2",
+    "pytest": "9.2.0",
+    "cycler": "0.12.1",
+    "fonttools": "4.68.0",
+    "tzdata": "2026.6",
+    "python-dateutil": "4.0.0",
+    "pyparsing": "3.3.3"
+  },
+  "smoke_cases": [
+    {
+      "experiment": "formation",
+      "agent_count": 3,
+      "duration_s": 15
+    },
+    {
+      "experiment": "formation-goal",
+      "agent_count": 3,
+      "duration_s": 25
+    },
+    {
+      "experiment": "static-obstacles",
+      "agent_count": 3,
+      "duration_s": 25
+    },
+    {
+      "experiment": "moving-obstacles",
+      "agent_count": 3,
+      "duration_s": 30
+    },
+    {
+      "experiment": "dynamic-navigation",
+      "agent_count": 3,
+      "duration_s": 30
+    },
+    {
+      "experiment": "dynamic-navigation",
+      "agent_count": 4,
+      "duration_s": 30
+    },
+    {
+      "experiment": "moving-obstacles",
+      "agent_count": 5,
+      "duration_s": 30
+    },
+    {
+      "experiment": "formation-goal",
+      "agent_count": 6,
+      "duration_s": 25
+    },
+    {
+      "experiment": "formation",
+      "agent_count": 8,
+      "duration_s": 15
+    }
+  ]
+}

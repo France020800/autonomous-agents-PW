@@ -1,0 +1,5 @@
+scenario,mode,prediction_horizon_s,minimum_real_clearance_m,contact_frames,first_repulsion_time_s,maximum_absolute_formation_error_m,rms_formation_error_m,final_maximum_formation_error_m,navigation_start_time_s,first_goal_arrival_time_s,final_goal_error_m,goal_reached_at_end
+moving-obstacles,reattivo,0.0,0.4624691438502087,0,4.73,0.2001747898542119,0.0579412693928074,1.7763568394002505e-15,,,,
+moving-obstacles,predittivo,1.5,0.65224687466034,0,3.23,0.15296332112804167,0.04817263207241443,0.0014274849204467532,,,,
+dynamic-navigation,reattivo,0.0,0.4133803536263763,0,1.8800000000000001,3.196821328253785,0.2048132882273613,6.661338147750939e-16,0.98,17.95,0.09458618306749432,True
+dynamic-navigation,predittivo,1.5,0.5597079521171964,0,1.04,3.196821328253785,0.19749115211946813,6.661338147750939e-16,0.98,20.95,0.09415084444753224,True

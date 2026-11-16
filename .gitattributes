@@ -1,0 +1,5 @@
+# I risultati esplorativi storici non sono necessari all'archivio di consegna.
+/outputs export-ignore
+
+# CSV generati da csv.writer: normalizzazione delle terminazioni nel repository.
+*.csv text eol=lf

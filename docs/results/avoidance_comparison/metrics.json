@@ -1,0 +1,81 @@
+{
+  "configuration": {
+    "seed": 42,
+    "agent_count": 3,
+    "duration": 30.0,
+    "dt": 0.01,
+    "moving_obstacle_count": 2,
+    "prediction_steps": 10,
+    "predictive_horizon_s": 1.5,
+    "goal_distance_m": 8.0,
+    "agent_radius_m": 0.15,
+    "goal_tolerance_m": 0.1
+  },
+  "environment": {
+    "python": "3.12.14",
+    "numpy": "2.5.3",
+    "matplotlib": "3.11.2"
+  },
+  "results": [
+    {
+      "scenario": "moving-obstacles",
+      "mode": "reattivo",
+      "prediction_horizon_s": 0.0,
+      "minimum_real_clearance_m": 0.4624691438502087,
+      "contact_frames": 0,
+      "first_repulsion_time_s": 4.73,
+      "maximum_absolute_formation_error_m": 0.2001747898542119,
+      "rms_formation_error_m": 0.0579412693928074,
+      "final_maximum_formation_error_m": 1.7763568394002505e-15,
+      "navigation_start_time_s": null,
+      "first_goal_arrival_time_s": null,
+      "final_goal_error_m": null,
+      "goal_reached_at_end": null
+    },
+    {
+      "scenario": "moving-obstacles",
+      "mode": "predittivo",
+      "prediction_horizon_s": 1.5,
+      "minimum_real_clearance_m": 0.65224687466034,
+      "contact_frames": 0,
+      "first_repulsion_time_s": 3.23,
+      "maximum_absolute_formation_error_m": 0.15296332112804167,
+      "rms_formation_error_m": 0.04817263207241443,
+      "final_maximum_formation_error_m": 0.0014274849204467532,
+      "navigation_start_time_s": null,
+      "first_goal_arrival_time_s": null,
+      "final_goal_error_m": null,
+      "goal_reached_at_end": null
+    },
+    {
+      "scenario": "dynamic-navigation",
+      "mode": "reattivo",
+      "prediction_horizon_s": 0.0,
+      "minimum_real_clearance_m": 0.4133803536263763,
+      "contact_frames": 0,
+      "first_repulsion_time_s": 1.8800000000000001,
+      "maximum_absolute_formation_error_m": 3.196821328253785,
+      "rms_formation_error_m": 0.2048132882273613,
+      "final_maximum_formation_error_m": 6.661338147750939e-16,
+      "navigation_start_time_s": 0.98,
+      "first_goal_arrival_time_s": 17.95,
+      "final_goal_error_m": 0.09458618306749432,
+      "goal_reached_at_end": true
+    },
+    {
+      "scenario": "dynamic-navigation",
+      "mode": "predittivo",
+      "prediction_horizon_s": 1.5,
+      "minimum_real_clearance_m": 0.5597079521171964,
+      "contact_frames": 0,
+      "first_repulsion_time_s": 1.04,
+      "maximum_absolute_formation_error_m": 3.196821328253785,
+      "rms_formation_error_m": 0.19749115211946813,
+      "final_maximum_formation_error_m": 6.661338147750939e-16,
+      "navigation_start_time_s": 0.98,
+      "first_goal_arrival_time_s": 20.95,
+      "final_goal_error_m": 0.09415084444753224,
+      "goal_reached_at_end": true
+    }
+  ]
+}

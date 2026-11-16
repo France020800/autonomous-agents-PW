@@ -1,6 +1,6 @@
 # Controllo di formazione e navigazione di un sistema multi-agente
 
-**Simulazione planare con dinamica a singolo integratore, formazione triangolare rigida, attrazione al goal mediante funzione di Huber e campi di potenziale artificiali per ostacoli statici e mobili.**
+**Simulazione planare con dinamica a singolo integratore, formazione poligonale regolare rigida con $N\geq3$ agenti, attrazione al goal mediante funzione di Huber e campi di potenziale artificiali per ostacoli statici e mobili.**
 
 Il progetto studia l'interazione fra tre obiettivi di controllo: mantenimento delle distanze relative, navigazione del baricentro verso un obiettivo e repulsione dagli ostacoli. Gli esperimenti permettono di analizzare sia il comportamento nominale sia deformazioni della formazione ed equilibri indesiderati.
 
@@ -22,7 +22,7 @@ Per gli ostacoli mobili il progetto implementa un **controllo repulsivo preditti
 
 ### Navigazione con ostacoli mobili
 
-Tre agenti raggiungono la formazione desiderata e successivamente navigano verso un goal. Due ostacoli percorrono traiettorie rettilinee con condizioni iniziali e velocità estratte casualmente.
+Nell'esempio illustrato, tre agenti (configurazione predefinita $N=3$) raggiungono la formazione desiderata e successivamente navigano verso un goal. Due ostacoli percorrono traiettorie rettilinee con condizioni iniziali e velocità estratte casualmente. Tutti gli scenari accettano anche $N\gt3$ tramite `--agent-count`.
 
 [![Traiettorie degli agenti e di due ostacoli mobili durante la navigazione](docs/results/dynamic_navigation_trajectories.png)](docs/results/dynamic_navigation_trajectories.png)
 
@@ -44,6 +44,23 @@ Tre agenti raggiungono la formazione desiderata e successivamente navigano verso
 ```
 
 Per questa esecuzione, la navigazione si attiva a circa **0.98 s** e la distanza finale fra baricentro e goal è inferiore alla tolleranza di **0.1 m**. Questi valori descrivono un caso sperimentale, non una garanzia di convergenza per ogni configurazione.
+
+### Confronto reattivo–predittivo
+
+È disponibile un [report riproducibile con dati completi e grafici](docs/results/avoidance_comparison/report.md). A parità di seed 42, $N=3$, due ostacoli, durata 30 s e passo 0.01 s:
+
+| Scenario | Clearance minima reattivo [m] | Clearance minima predittivo [m] |
+|---|---:|---:|
+| Formazione senza goal | 0.4625 | 0.6522 |
+| Navigazione al goal | 0.4134 | 0.5597 |
+
+Nel caso con goal il primo arrivo avviene a 17.95 s per il reattivo e a 20.95 s per il predittivo: l'anticipo dell'evitamento migliora la separazione in questo caso, ma non riduce necessariamente il tempo di missione. Non sono stati osservati frame di contatto agente–ostacolo; non è una garanzia di sicurezza continua né una valutazione statistica su più seed.
+
+```bash
+.venv/bin/python -m mas_formation.experiments.compare_avoidance
+```
+
+Il comando non apre finestre: salva configurazione e versioni, metriche JSON/CSV, curve temporali, traiettorie NPZ e figure in `docs/results/avoidance_comparison/`. Il report indica i parametri e le definizioni delle metriche. Le immagini precedenti usano invece durata 25 s.
 
 ### Altri scenari
 
@@ -167,6 +184,16 @@ Su Windows, sostituire `.venv/bin/python` con `.venv\Scripts\python.exe`.
 .venv/bin/python -m pytest -q
 ```
 
+### Verifica da ambiente pulito e consegna
+
+La procedura automatica crea un ambiente virtuale temporaneo **senza pacchetti di sistema**, costruisce e installa la wheel (non in modalità editable), esegue la suite su una copia dei test fuori dal checkout e prova la CLI con più scenari e numerosità:
+
+```bash
+python3 scripts/verify_clean_environment.py
+```
+
+Servono accesso a PyPI (o una cache pip completa) e Python 3.10+. Non modifica `.venv/`. Risultati e versioni dell'esecuzione verificata sono descritti in [docs/VERIFICA_FINALE.md](docs/VERIFICA_FINALE.md). La verifica headless non sostituisce una prova manuale del backend grafico interattivo e del browser.
+
 ## 4. Modello matematico
 
 Per una corretta lettura in editor locali è necessario un visualizzatore Markdown con supporto matematico.
@@ -229,12 +256,15 @@ Tutti i comandi sono calcolati sullo stato al tempo $k$ prima di aggiornare le e
 
 ### 5.1 Grafo delle distanze e rigidità
 
-La formazione è definita dal grafo non orientato completo $K_3$:
+La formazione regolare è definita dal grafo non orientato completo $K_N$, con $N\geq3$:
 
 $$
-\mathcal V=\{0,1,2\}, \qquad
-\mathcal E=\{(0,1),(0,2),(1,2)\}.
+\mathcal V=\{0,\ldots,N-1\}, \qquad
+\mathcal E=\{(i,j):0\leq i\lt j\leq N-1\}, \qquad
+\lvert\mathcal E\rvert=\frac{N(N-1)}{2}.
 $$
+
+Il grafo include lati e diagonali: imporre solo lati uguali non renderebbe rigido un quadrato o un poligono più grande. Nel caso originale $N=3$ si ottiene $K_3$.
 
 I vincoli desiderati sono:
 
@@ -242,7 +272,7 @@ $$
 \lVert p_i-p_j\rVert=d_{ij}, \qquad (i,j)\in\mathcal E.
 $$
 
-Le tre distanze devono essere positive e soddisfare le disuguaglianze strette del triangolo:
+Per il caso triangolare, le tre distanze devono essere positive e soddisfare le disuguaglianze strette del triangolo:
 
 $$
 \begin{aligned}
@@ -252,7 +282,7 @@ d_{02}+d_{12}&\gt d_{01}.
 \end{aligned}
 $$
 
-Una realizzazione non degenere è rigida nel piano. I vincoli non assegnano posizione assoluta, orientamento o chiralità: configurazioni traslate, ruotate o riflesse soddisfano le stesse distanze.
+Una realizzazione piana non degenere con tutte le distanze assegnate è rigida. Per più di tre agenti, le sole disuguaglianze triangolari non garantiscono che distanze arbitrarie siano realizzabili nel piano: il costruttore regolare ricava invece le distanze da una geometria realizzabile per costruzione. I vincoli non assegnano posizione assoluta, orientamento o chiralità: configurazioni traslate, ruotate o riflesse soddisfano le stesse distanze.
 
 ```python
 from mas_formation.models import TriangularFormation
@@ -270,6 +300,13 @@ d_{ij}=L\,\frac{\sin(\pi\Delta_{ij}/N)}{\sin(\pi/N)},
 \qquad
 \Delta_{ij}=\min(\lvert i-j\rvert,\,N-\lvert i-j\rvert).
 $$
+
+Gli indici $i,j$ nella formula delle corde rappresentano l'ordine ciclico dei vertici; gli identificativi possono essere interi distinti arbitrari. Il nome storico `TriangularFormation` è mantenuto per compatibilità, ma la stessa classe supporta i poligoni regolari. Solo i lati **perimetrali** hanno lunghezza $L$: le diagonali hanno lunghezze diverse.
+
+```python
+# Pentagono regolare: 5 lati da 2 m e le diagonali necessarie alla rigidità.
+formation = TriangularFormation.equilateral(range(5), side_length=2.0)
+```
 
 ### 5.2 Potenziale e controllo distribuito di formazione
 
@@ -455,7 +492,9 @@ u_{o,i}=\sum_{j:\,\rho_{ij}^\star\lt\rho_0}k_o
 \frac{p_i-q_{ij}^\star}{(\widetilde\rho_{ij}^\star)^2\lVert p_i-q_{ij}^\star\rVert}.
 $$
 
-Se l'ostacolo è in avvicinamento, uno dei campioni futuri ($m_{ij}^\star\gt 0$) risulta più vicino di quello attuale e anticipa la repulsione; se l'ostacolo si sta allontanando, la distanza minima resta quella istantanea ($m_{ij}^\star=0$); per $v_j=0$ oppure $T_p=0$ il controllore coincide con `PositionBasedObstacleAvoidanceController`.
+Se un campione futuro ($m_{ij}^\star\gt0$) è più vicino di quello attuale, può anticipare la repulsione; se l'ostacolo si allontana dalla posizione corrente dell'agente, la distanza minima resta quella istantanea ($m_{ij}^\star=0$). Per $v_j=0$ oppure $T_p=0$ il controllore coincide con `PositionBasedObstacleAvoidanceController`.
+
+La predizione mantiene **fissa la posizione attuale dell'agente**: non predice il suo moto e non usa velocità relative o un tempo continuo di massimo avvicinamento. Le previsioni sono ricalcolate a ogni timestep. Il minimo è campionato, quindi può non rilevare il punto più vicino fra due campioni futuri. Quando più campioni hanno uguale distanza minima, viene selezionato il primo nell'ordine temporale: il potenziale può non essere differenziabile e il controllo può cambiare bruscamente. Fuori dai pareggi e dalla regione regolarizzata, il comando coincide con l'antigradiente del ramo selezionato.
 
 ### 5.5 Composizione e significato dei potenziali
 
@@ -475,10 +514,10 @@ Nelle regioni non regolarizzate, con ostacoli statici, navigazione attiva fuori 
 | `formation` | Agenti in posizioni casuali | Assente | Assenti |
 | `formation-goal` | Agenti in posizioni casuali | Casuale, attivato dopo la formazione | Assenti |
 | `static-obstacles` | Agenti in posizioni casuali | Come sopra | Da 1 a 5 dischi fissi |
-| `moving-obstacles` | Triangolo già in equilibrio | Assente | Da 1 a 3 dischi a velocità costante casuale |
+| `moving-obstacles` | Poligono regolare già in equilibrio | Assente | Da 1 a 3 dischi a velocità costante casuale |
 | `dynamic-navigation` | Agenti in posizioni casuali | Casuale, attivato dopo la formazione | Da 1 a 3 dischi mobili su rette casuali |
 
-Le condizioni iniziali casuali degli agenti sono estratte in `[-3, 3]²`, rifiutando configurazioni troppo ravvicinate o quasi collineari. Gli ostacoli mobili sono generati in modo da attraversare la zona della formazione o il corridoio previsto di navigazione: la distribuzione non è uniforme su tutto il piano e non garantisce un incontro per qualsiasi evoluzione del MAS. Non sono previsti rimbalzi ai bordi negli esperimenti correnti.
+Per $3\leq N\leq5$ le condizioni iniziali sono estratte in `[-3, 3]²`; per $N\geq6$ il semilato dello spazio di estrazione diventa $3\sqrt{N/3}$. Si rifiutano configurazioni con separazione minima inferiore a 0.5 m o area doppia dei primi tre punti inferiore a 0.2 m². Per $N\gt3$ i punti accettati sono assegnati agli identificativi ordinandoli angolarmente attorno al baricentro; questo facilita l'organizzazione ciclica iniziale senza imporre la formazione finale. Gli ostacoli mobili sono generati in modo da attraversare la zona della formazione o il corridoio previsto di navigazione: la distribuzione non è uniforme su tutto il piano e non garantisce un incontro per qualsiasi evoluzione del MAS. Non sono previsti rimbalzi ai bordi negli esperimenti correnti.
 
 ### Interfaccia a riga di comando
 
@@ -507,8 +546,8 @@ L'assenza di `--seed` produce scenari diversi ad ogni esecuzione. I valori CLI p
 
 | Parametro | Valore |
 |---|---|
-| Lato del triangolo desiderato | 2 m |
-| Guadagno di formazione `gain` | 1.0 |
+| Lato perimetrale del poligono desiderato | 2 m |
+| Guadagno di formazione `gain` | $k_f(N)=\frac{3}{N}\left(\frac{\sin(\pi/N)}{\sin(\pi/3)}\right)^2$; 1.0 per $N=3$ |
 | Modulo del comando di navigazione nel ramo lineare Huber | 0.6 m/s |
 | Soglia Huber del goal $\delta_g$ | 0.05 m |
 | Tolleranza sulle distanze per avviare la navigazione | 0.001 m |
@@ -518,6 +557,20 @@ L'assenza di `--seed` produce scenari diversi ad ogni esecuzione. I valori CLI p
 | Clearance minima di regolarizzazione | 0.05 m |
 | Orizzonte di predizione ostacoli mobili $T_p$ | 1.5 s |
 | Passi futuri di predizione $M_p$ | 10 |
+
+La scalatura del guadagno compensa la crescita del numero di archi e delle diagonali; è un accorgimento numerico, **non una garanzia di stabilità** per qualsiasi $N$ e passo. Il costo del grafo completo cresce quadraticamente nel numero di agenti e può essere necessario ridurre `--dt` per formazioni grandi.
+
+```bash
+# Quadrato con navigazione e ostacoli mobili
+.venv/bin/python main.py --experiment dynamic-navigation --agent-count 4 \
+  --moving-obstacle-count 2 --seed 42 --duration 30 --interactive
+
+# Pentagono, sola formazione
+.venv/bin/python main.py --experiment formation --agent-count 5 --seed 42 --interactive
+
+# Esagono con navigazione senza ostacoli
+.venv/bin/python main.py --experiment formation-goal --agent-count 6 --seed 42 --interactive
+```
 
 Questi parametri sono definiti nelle funzioni in `experiments/basic_formation.py`; non sono tutti esposti tramite CLI. Variando il numero di ostacoli o la distanza del goal si possono generare scenari sfavorevoli: non è garantito che la formazione iniziale venga raggiunta entro la durata assegnata. In tal caso gli esperimenti con navigazione segnalano un errore.
 
@@ -544,7 +597,10 @@ Questi parametri sono definiti nelle funzioni in `experiments/basic_formation.py
 │   │   └── mission.py           # Composizione e supervisione
 │   └── experiments/
 │       ├── basic_formation.py   # Scenari, raccolta dati, grafici Matplotlib
-│       └── html_viewer.py       # Esportazione interattiva per browser
+│       ├── html_viewer.py       # Esportazione interattiva per browser
+│       └── compare_avoidance.py # Confronto reattivo–predittivo e artefatti
+├── scripts/
+│   └── verify_clean_environment.py # Build, installazione isolata, test e smoke test CLI
 ├── tests/
 └── outputs/                    # Risultati delle esecuzioni locali
 ```
@@ -570,7 +626,7 @@ Prima dell'attivazione del goal, il relativo potenziale è rappresentato da `NaN
 .venv/bin/python -m pytest -q
 ```
 
-La suite verifica dinamiche, saturazione, aggiornamento sincrono, validazione del triangolo, proprietà locali dei controllori, attivazione della navigazione, riproducibilità, alcuni scenari completi ed esportazione dei dati HTML. Il superamento dei test non equivale a una certificazione di sicurezza per tutti gli scenari possibili.
+La suite verifica dinamiche, saturazione, aggiornamento sincrono, triangoli e poligoni regolari con $N\geq3$, proprietà locali dei controllori, avoidance predittivo, attivazione della navigazione, riproducibilità, alcuni scenari completi, esportazione HTML e metriche/artefatti del confronto. Il superamento dei test non equivale a una certificazione di sicurezza per tutti gli scenari possibili.
 
 ### Indicatori quantitativi
 
@@ -610,6 +666,10 @@ L'implementazione è destinata allo studio didattico e sperimentale. Non include
 4. interazioni o collision avoidance fra ostacoli;
 5. stima con rumore, ritardi di comunicazione o limiti di sensing;
 6. ostacoli con velocità variabile nel tempo o traiettorie curvilinee;
-7. un vincolo di mantenimento del baricentro negli esperimenti senza goal.
+7. un vincolo di mantenimento del baricentro negli esperimenti senza goal;
+8. una previsione del moto degli agenti o una verifica continua tra campioni futuri;
+9. una garanzia di regolarità del comando nei cambiamenti del campione minimo.
+
+Questi limiti vanno riportati anche nella relazione: l'evitamento predittivo anticipa alcuni incontri ma non risolve la non completezza degli APF.
 
 Possibili sviluppi futuri riguardano l'inclusione della velocità nominale dell'agente nella stima del punto di massimo avvicinamento e l'estensione a ostacoli con moto non rettilineo uniforme.

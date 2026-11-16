@@ -36,10 +36,12 @@ class FormationEdge:
 class TriangularFormation:
     """Grafo completo ``K_N`` (con ``N >= 3``) che descrive una formazione rigida nel piano.
 
-    Gli archi impongono ``||p_i - p_j|| = d_ij``. Le disuguaglianze strette
-    del triangolo su ogni terna garantiscono che i vincoli siano metricamente
-    consistenti e non degeneri, definendo una figura rigida a meno di
-    traslazioni, rotazioni e riflessioni.
+    Gli archi impongono ``||p_i - p_j|| = d_ij``. Si verificano le disuguaglianze
+    strette del triangolo su ogni terna: per N > 3 sono condizioni necessarie,
+    non sufficienti alla realizzabilità nel piano di distanze arbitrarie.
+    ``equilateral`` costruisce invece distanze realizzabili di un poligono
+    regolare rigido, a meno di traslazioni, rotazioni e riflessioni.
+    Il nome storico della classe è mantenuto per compatibilità.
     """
 
     agent_ids: Sequence[int]
